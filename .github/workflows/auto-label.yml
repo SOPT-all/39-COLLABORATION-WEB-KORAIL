@@ -1,0 +1,70 @@
+name: Issue and PR Auto Label
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+  pull_request_target:
+    types: [opened, edited, reopened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: auto-label-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply label from title
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const params = {
+              ...context.repo,
+              issue_number: context.issue.number,
+            };
+
+            const { data: item } = await github.rest.issues.get(params);
+
+            const labelsByType = {
+              init: '⚙️Init',
+              feat: '🧞‍♂️Feat',
+              fix: '🛠️Fix',
+              refactor: '♻️Refactor',
+              docs: '📑Docs',
+              chore: '🧹Chore',
+              build: '🧹Chore',
+              ci: '🔮CI/CD',
+            };
+
+            const match = item.title.trim().match(
+              /^(init|feat|fix|refactor|docs|chore|build|ci)(?:\([^)]+\))?:\s+\S/i
+            );
+
+            if (!match) {
+              core.notice('제목 형식이 일치하지 않아 라벨을 변경하지 않습니다.');
+              return;
+            }
+
+            const targetLabel = labelsByType[match[1].toLowerCase()];
+            const typeLabels = [...new Set(Object.values(labelsByType))];
+            const currentLabels = item.labels.map((label) => label.name);
+
+            if (!currentLabels.includes(targetLabel)) {
+              await github.rest.issues.addLabels({
+                ...params,
+                labels: [targetLabel],
+              });
+            }
+
+            for (const label of currentLabels) {
+              if (typeLabels.includes(label) && label !== targetLabel) {
+                await github.rest.issues.removeLabel({
+                  ...params,
+                  name: label,
+                });
+              }
+            }
