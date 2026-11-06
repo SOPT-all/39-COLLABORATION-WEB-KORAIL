@@ -45,25 +45,26 @@ PLAY SOPT 39기 합동세미나 모바일 웹 1조 코레일 🚄
 <br />
 
 ## 💅🏽: Tech Stack
-| 카테고리 | 기술 스택 |
-| --- | --- |
-| UI Library | React |
-| Language | TypeScript |
-| Build Tool | Vite |
-| Runtime | Node.js |
-| Package Manager | pnpm |
-| Styling | Tailwind CSS |
-| Routing | React Router |
-| HTTP Client | Axios |
-| Server State Management | TanStack Query |
-| Local State | React useState |
-| SVG | SVGR |
-| Version Control | Git · GitHub |
-| CI | GitHub Actions |
-| Deployment | Vercel |
-| Git Hooks | Husky |
-| Formatting | ESLint · Prettier |
-| Cooperation | Notion · Discord · Figma |
+
+| 카테고리                | 기술 스택                |
+| ----------------------- | ------------------------ |
+| UI Library              | React                    |
+| Language                | TypeScript               |
+| Build Tool              | Vite                     |
+| Runtime                 | Node.js                  |
+| Package Manager         | pnpm                     |
+| Styling                 | Tailwind CSS             |
+| Routing                 | React Router             |
+| HTTP Client             | Axios                    |
+| Server State Management | TanStack Query           |
+| Local State             | React useState           |
+| SVG                     | SVGR                     |
+| Version Control         | Git · GitHub             |
+| CI                      | GitHub Actions           |
+| Deployment              | Vercel                   |
+| Git Hooks               | Husky                    |
+| Formatting              | ESLint · Prettier        |
+| Cooperation             | Notion · Discord · Figma |
 
 <br />
 
@@ -76,6 +77,7 @@ PLAY SOPT 39기 합동세미나 모바일 웹 1조 코레일 🚄
 <br />
 
 ## 📤: Directory Structure
+
 ```text
 src
 ├── app
@@ -130,18 +132,18 @@ src
 └── vite-env.d.ts
 ```
 
-| 폴더 | 역할 |
-| --- | --- |
-| `app` | 앱 진입점·라우터·Provider·공통 레이아웃 |
-| `pages` | 페이지별 구현 |
-| `api` | 서버 요청 함수 |
-| `components` | UI 컴포넌트 |
-| `hooks` | React 상태·요청 흐름을 관리하는 커스텀 훅 |
-| `types` | 여러 파일에서 사용하는 데이터 타입 |
-| `shared` | 여러 페이지가 공유하는 코드 |
-| `constants` | 고정 조회 조건 등 공통 상수 |
-| `styles` | 전역 스타일·디자인 토큰 |
-| `utils` | 날짜·금액 변환 등 일반 함수 |
+| 폴더         | 역할                                      |
+| ------------ | ----------------------------------------- |
+| `app`        | 앱 진입점·라우터·Provider·공통 레이아웃   |
+| `pages`      | 페이지별 구현                             |
+| `api`        | 서버 요청 함수                            |
+| `components` | UI 컴포넌트                               |
+| `hooks`      | React 상태·요청 흐름을 관리하는 커스텀 훅 |
+| `types`      | 여러 파일에서 사용하는 데이터 타입        |
+| `shared`     | 여러 페이지가 공유하는 코드               |
+| `constants`  | 고정 조회 조건 등 공통 상수               |
+| `styles`     | 전역 스타일·디자인 토큰                   |
+| `utils`      | 날짜·금액 변환 등 일반 함수               |
 
 <br />
 
@@ -185,7 +187,7 @@ src
 - 컴포넌트 입력 타입에만 `Props` 접미사를 붙입니다.
 - 데이터 타입에는 역할이 드러나는 이름을 사용합니다.
 
-API 요청·응답 타입은 서버 명세를 기준으로 작성합니다.  
+API 요청·응답 타입은 서버 명세를 기준으로 작성합니다.
 
 </details>
 
@@ -253,16 +255,16 @@ fix: 선택 불가 좌석 클릭 차단
 docs: 프로젝트 실행 방법 추가
 ```
 
-| 태그 | 의미 |
-| --- | --- |
-| `init` | 초기 세팅 |
-| `feat` | 기능 추가 |
-| `fix` | 오류 수정 |
+| 태그       | 의미                      |
+| ---------- | ------------------------- |
+| `init`     | 초기 세팅                 |
+| `feat`     | 기능 추가                 |
+| `fix`      | 오류 수정                 |
 | `refactor` | 동작을 유지하는 구조 개선 |
-| `build` | 빌드 설정·의존성 변경 |
-| `ci` | CI 설정·스크립트 변경 |
-| `docs` | 문서 수정 |
-| `chore` | 그 외 유지보수 작업 |
+| `build`    | 빌드 설정·의존성 변경     |
+| `ci`       | CI 설정·스크립트 변경     |
+| `docs`     | 문서 수정                 |
+| `chore`    | 그 외 유지보수 작업       |
 
 <br />
 
@@ -294,14 +296,14 @@ Init(project): PR 및 이슈 템플릿 설정
 
 ### 브랜치 운영
 
-| 브랜치 | 용도 |
-| --- | --- |
-| `main` | 검증된 배포 기준 |
-| `develop` | 기능 통합 |
-| `init/기능명/#issue-number` | 초기 세팅 |
-| `feat/기능명/#issue-number` | 기능 개발 |
-| `fix/기능명/#issue-number` | 오류 수정 |
-| `refactor/기능명/#issue-number` | 리팩토링 |
+| 브랜치                          | 용도             |
+| ------------------------------- | ---------------- |
+| `main`                          | 검증된 배포 기준 |
+| `develop`                       | 기능 통합        |
+| `init/기능명/#issue-number`     | 초기 세팅        |
+| `feat/기능명/#issue-number`     | 기능 개발        |
+| `fix/기능명/#issue-number`      | 오류 수정        |
+| `refactor/기능명/#issue-number` | 리팩토링         |
 
 기능명은 `kebab-case`를 사용합니다.
 
