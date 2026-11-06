@@ -22,23 +22,22 @@ jobs:
         uses: actions/github-script@v9
         with:
           script: |
-            const issueNumber = context.issue.number;
             const params = {
               ...context.repo,
-              issue_number: issueNumber,
+              issue_number: context.issue.number,
             };
 
             const { data: item } = await github.rest.issues.get(params);
 
             const labelsByType = {
-              init: 'Init',
-              feat: 'Feat',
-              fix: 'Fix',
-              refactor: 'Refactor',
-              docs: 'Docs',
-              chore: 'Chore',
-              build: 'Build',
-              ci: 'CI/CD',
+              init: '⚙️Init',
+              feat: '🧞‍♂️Feat',
+              fix: '🛠️Fix',
+              refactor: '♻️Refactor',
+              docs: '📑Docs',
+              chore: '🧹Chore',
+              build: '🧹Chore',
+              ci: '🔮CI/CD',
             };
 
             const match = item.title.trim().match(
@@ -51,7 +50,7 @@ jobs:
             }
 
             const targetLabel = labelsByType[match[1].toLowerCase()];
-            const typeLabels = Object.values(labelsByType);
+            const typeLabels = [...new Set(Object.values(labelsByType))];
             const currentLabels = item.labels.map((label) => label.name);
 
             if (!currentLabels.includes(targetLabel)) {
