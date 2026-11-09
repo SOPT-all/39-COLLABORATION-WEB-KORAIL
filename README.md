@@ -78,6 +78,24 @@ PLAY SOPT 39기 합동세미나 모바일 웹 1조 코레일 🚄
 
 ## 📤: Directory Structure
 
+### 현재 구조
+
+초기 세팅 PR에 포함된 `src` 구조입니다.
+
+```text
+src
+├── app
+│   ├── App.tsx
+│   └── main.tsx
+└── shared
+    └── styles
+        └── global.css
+```
+
+### 구현 예정 구조
+
+화면과 공통 기능을 구현하면서 필요한 폴더와 파일을 추가합니다. `vite-env.d.ts`는 환경변수 타입을 별도로 선언할 때 추가합니다.
+
 ```text
 src
 ├── app
@@ -104,27 +122,30 @@ src
 │   │
 │   ├── seat-selection
 │   │   ├── api
+│   │   │   └── create-reservation.ts
 │   │   ├── components
 │   │   ├── hooks
 │   │   ├── types
 │   │   └── seat-selection-page.tsx
 │   │
-│   └── payment
+│   └── reservation-confirmation
+│       ├── api
+│       │   └── get-pending-reservations.ts
 │       ├── components
 │       ├── hooks
 │       ├── types
-│       └── payment-page.tsx
+│       └── reservation-confirmation-page.tsx
 │
 ├── shared
 │   ├── api
 │   │   ├── client.ts
-│   │   ├── query-keys.ts
-│   │   └── reservation-api.ts
+│   │   └── reservation-query-keys.ts
 │   ├── constants
 │   ├── hooks
 │   ├── icons
 │   ├── images
 │   ├── styles
+│   │   └── global.css
 │   ├── types
 │   ├── components
 │   └── utils
@@ -144,6 +165,14 @@ src
 | `constants`  | 고정 조회 조건 등 공통 상수               |
 | `styles`     | 전역 스타일·디자인 토큰                   |
 | `utils`      | 날짜·금액 변환 등 일반 함수               |
+
+### API와 Query 키 배치 기준
+
+- 열차 목록·상세 요청과 Query 키는 `pages/train-search/api`에서 관리합니다.
+- 호차 목록·좌석 조회 요청과 해당 Query 키, 예약 생성 요청(POST)은 `pages/seat-selection/api`에서 관리합니다.
+- 결제 대기 예약 목록 조회 요청(GET)은 `pages/reservation-confirmation/api`에서 관리합니다.
+- 공통 Axios 클라이언트는 `shared/api/client.ts`에서 관리합니다.
+- 예약 목록 조회와 예약 생성 성공 후 목록 갱신에는 `shared/api/reservation-query-keys.ts`에 정의한 같은 Query 키를 사용합니다.
 
 <br />
 
