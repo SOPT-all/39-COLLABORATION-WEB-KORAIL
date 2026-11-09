@@ -1,13 +1,13 @@
-name: "⚙️ Init"
-description: "프로젝트 초기 환경과 협업 설정 작업을 등록합니다."
-title: "Init: "
+name: '⚙️ Init'
+description: '프로젝트 초기 환경과 협업 설정 작업을 등록합니다.'
+title: 'Init: '
 body:
   - type: textarea
     id: describe
     attributes:
       label: Describe
       description: 필요한 설정과 목적을 작성해주세요.
-      placeholder: "예: 서버 요청의 공통 처리를 위해 Axios 인스턴스를 설정합니다."
+      placeholder: '예: 서버 요청의 공통 처리를 위해 Axios 인스턴스를 설정합니다.'
     validations:
       required: true
 
@@ -16,7 +16,7 @@ body:
     attributes:
       label: Tasks
       description: 작업 내용을 체크리스트로 작성해주세요.
-      value: "- [ ] "
+      value: '- [ ] '
     validations:
       required: true
 

@@ -1,6 +1,6 @@
-name: "🛠️ Fix"
-description: "발생한 오류와 수정 작업을 등록합니다."
-title: "Fix: "
+name: '🛠️ Fix'
+description: '발생한 오류와 수정 작업을 등록합니다.'
+title: 'Fix: '
 body:
   - type: textarea
     id: describe
@@ -19,7 +19,7 @@ body:
     attributes:
       label: Tasks
       description: 수정 및 확인할 내용을 체크리스트로 작성해주세요.
-      value: "- [ ] "
+      value: '- [ ] '
     validations:
       required: true
 
