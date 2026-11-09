@@ -3,7 +3,7 @@ const TrainSearchPage = () => {
     <main>
       <h1>열차 조회</h1>
     </main>
-  );
-};
+  )
+}
 
-export default TrainSearchPage;
+export default TrainSearchPage
