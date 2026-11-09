@@ -3,8 +3,8 @@ name: Issue and PR Auto Assignment
 on:
   issues:
     types: [opened]
-  pull_request_target:
-    types: [opened, ready_for_review]
+  pull_request:
+    types: [opened, reopened, ready_for_review]
 
 permissions:
   issues: write
@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   auto-assignment:
+    if: github.event_name == 'issues' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Assign author, label and reviewers
