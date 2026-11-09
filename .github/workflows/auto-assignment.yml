@@ -1,0 +1,135 @@
+name: Issue and PR Auto Assignment
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened, ready_for_review]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: auto-assignment-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  auto-assignment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign author, label and reviewers
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const members = {
+              yurimidaH: '유림',
+              Hyobee02: '효비',
+              bosung0505: '보성',
+              comehere43: '세영',
+            };
+
+            const item = context.payload.issue
+              ?? context.payload.pull_request;
+            const author = item.user.login;
+
+            const authorEntry = Object.entries(members).find(
+              ([login]) => login.toLowerCase() === author.toLowerCase()
+            );
+
+            if (!authorEntry) {
+              core.notice('팀원 작성 건이 아니므로 자동 지정을 생략합니다.');
+              return;
+            }
+
+            const params = {
+              ...context.repo,
+              issue_number: context.issue.number,
+            };
+
+            const { data: currentItem } =
+              await github.rest.issues.get(params);
+
+            const isAssigned = currentItem.assignees.some(
+              (assignee) =>
+                assignee.login.toLowerCase() === author.toLowerCase()
+            );
+
+            if (!isAssigned) {
+              await github.rest.issues.addAssignees({
+                ...params,
+                assignees: [author],
+              });
+            }
+
+            const repoLabels = await github.paginate(
+              github.rest.issues.listLabelsForRepo,
+              { ...context.repo, per_page: 100 }
+            );
+
+            const authorLabels = repoLabels.filter(
+              (label) =>
+                label.name.replace(/\s/g, '').endsWith(authorEntry[1])
+            );
+
+            if (authorLabels.length !== 1) {
+              core.setFailed(
+                `${authorEntry[1]} 이름으로 끝나는 팀원 라벨이 정확히 하나 필요합니다.`
+              );
+              return;
+            }
+
+            const authorLabel = authorLabels[0].name;
+            const hasAuthorLabel = currentItem.labels.some(
+              (label) => label.name === authorLabel
+            );
+
+            if (!hasAuthorLabel) {
+              await github.rest.issues.addLabels({
+                ...params,
+                labels: [authorLabel],
+              });
+            }
+
+            if (!context.payload.pull_request) {
+              return;
+            }
+
+            const pullParams = {
+              ...context.repo,
+              pull_number: context.issue.number,
+            };
+
+            const { data: pull } = await github.rest.pulls.get(pullParams);
+
+            if (pull.draft) {
+              core.notice('Draft PR은 Ready 전환 시 리뷰를 요청합니다.');
+              return;
+            }
+
+            const reviews = await github.paginate(
+              github.rest.pulls.listReviews,
+              { ...pullParams, per_page: 100 }
+            );
+
+            const existingReviewers = new Set([
+              ...pull.requested_reviewers.map(
+                (reviewer) => reviewer.login.toLowerCase()
+              ),
+              ...reviews
+                .filter((review) => review.user)
+                .map((review) => review.user.login.toLowerCase()),
+            ]);
+
+            const reviewers = Object.keys(members).filter(
+              (login) =>
+                login.toLowerCase() !== author.toLowerCase()
+                && !existingReviewers.has(login.toLowerCase())
+            );
+
+            if (reviewers.length > 0) {
+              await github.rest.pulls.requestReviewers({
+                ...pullParams,
+                reviewers,
+              });
+            }
