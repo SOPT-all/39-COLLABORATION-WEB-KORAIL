@@ -60,7 +60,7 @@ jobs:
         uses: actions/github-script@v9
         env:
           PREVIEW_URL: ${{ steps.deploy.outputs.url }}
-          PREVIEW_SHA: ${{ github.sha }}
+          PREVIEW_SHA: ${{ github.event.pull_request.head.sha }}
         with:
           script: |
             const marker = '<!-- korail-vercel-preview -->';
