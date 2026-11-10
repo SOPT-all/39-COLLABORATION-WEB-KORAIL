@@ -1,0 +1,101 @@
+name: Discord PR Notification
+
+on:
+  pull_request:
+    branches: [develop, main]
+    types: [opened, ready_for_review, closed]
+  pull_request_review:
+    types: [submitted]
+
+permissions: {}
+
+jobs:
+  notify:
+    name: Send Discord PR card
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(fromJSON('["develop", "main"]'), github.event.pull_request.base.ref) &&
+      (
+        (
+          github.event_name == 'pull_request' &&
+          (
+            (github.event.action == 'closed' && github.event.pull_request.merged) ||
+            (github.event.action != 'closed' && !github.event.pull_request.draft)
+          )
+        ) ||
+        (
+          github.event_name == 'pull_request_review' &&
+          !github.event.pull_request.draft &&
+          contains(fromJSON('["approved", "changes_requested", "commented"]'), github.event.review.state)
+        )
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Send card to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          REVIEW_STATE: ${{ github.event.review.state }}
+          CARD_AUTHOR: ${{ github.event.review.user.login || github.event.pull_request.user.login }}
+          CARD_AVATAR: ${{ github.event.review.user.avatar_url || github.event.pull_request.user.avatar_url }}
+        run: |
+          if [[ -z "$DISCORD_WEBHOOK_URL" ]]; then
+            echo "::error::DISCORD_WEBHOOK_URL Secret을 등록해주세요."
+            exit 1
+          fi
+
+          case "$REVIEW_STATE" in
+            approved)
+              heading="🏊🏻‍♀️ 리뷰를 승인했어요, 어푸~"
+              color=5763719
+              ;;
+            changes_requested)
+              heading="🛠️ 수정을 요청했어요. 아자잣!"
+              color=15105570
+              ;;
+            commented)
+              heading="💬 리뷰 코멘트가 달렸어요"
+              color=3447003
+              ;;
+            *)
+              if [[ "$PR_ACTION" == "closed" ]]; then
+                heading="🏁 GOAL~ 머지됐어요"
+                color=5763719
+              else
+                heading="🚄 당신의 리뷰를 기다려요"
+                color=5814783
+              fi
+              ;;
+          esac
+
+          payload=$(jq -n \
+            --arg heading "$heading" \
+            --arg number "$PR_NUMBER" \
+            --arg title "$PR_TITLE" \
+            --arg url "$PR_URL" \
+            --arg author "$CARD_AUTHOR" \
+            --arg avatar "$CARD_AVATAR" \
+            --arg base "$PR_BASE" \
+            --argjson color "$color" \
+            '{
+              allowed_mentions: {parse: []},
+              embeds: [{
+                title: ("\($heading) · #\($number) \($title)" | .[0:120]),
+                url: $url,
+                color: $color,
+                author: {name: $author, icon_url: $avatar},
+                fields: [{name: "대상 브랜치", value: $base, inline: true}]
+              }]
+            }')
+
+          curl --fail --silent --show-error --max-time 15 \
+            --output /dev/null \
+            --header 'Content-Type: application/json' \
+            --data-binary "$payload" \
+            "$DISCORD_WEBHOOK_URL"
