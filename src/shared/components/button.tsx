@@ -2,12 +2,13 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
-  width?: 207 | 218
+  width?: 207 | 218 | 311
 }
 
 const buttonWidth = {
   207: 'w-[207px]',
   218: 'w-[218px]',
+  311: 'w-[311px]',
 }
 
 const Button = ({
