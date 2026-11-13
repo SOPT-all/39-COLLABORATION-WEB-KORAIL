@@ -2,26 +2,46 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
-  width?: 207 | 218 | 311 | 343
+  variant?: 'outline' | 'primary' | 'secondary'
+  width?: 129 | 143 | 156 | 207 | 218 | 311 | 343
 }
 
 const buttonWidth = {
+  129: 'w-[129px]',
+  143: 'w-[143px]',
+  156: 'w-[156px]',
   207: 'w-[207px]',
   218: 'w-[218px]',
   311: 'w-[311px]',
   343: 'w-[343px]',
 }
 
+const buttonVariant = {
+  outline: 'h-11 border border-gray-200 bg-gray-0 px-8 py-3 text-body-14-b text-gray-900',
+  primary:
+    'h-11 bg-blue-500 px-4 py-3 text-body-14-b text-gray-0 active:bg-blue-700 disabled:bg-slate-200',
+  secondary: 'h-10 bg-slate-50 px-4 text-body-14-m text-gray-900 active:bg-slate-100',
+}
+
+const defaultButtonWidth = {
+  outline: 143,
+  primary: 207,
+  secondary: 156,
+} as const
+
 const Button = ({
   children,
   className = '',
   type = 'button',
-  width = 207,
+  variant = 'primary',
+  width,
   ...props
 }: ButtonProps) => {
+  const selectedWidth = width ?? defaultButtonWidth[variant]
+
   return (
     <button
-      className={`flex h-11 items-center justify-center rounded-8 bg-blue-500 px-4 py-3 text-body-14-b text-gray-0 active:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 ${buttonWidth[width]} ${className}`}
+      className={`flex items-center justify-center rounded-8 disabled:cursor-not-allowed ${buttonVariant[variant]} ${buttonWidth[selectedWidth]} ${className}`}
       type={type}
       {...props}
     >
