@@ -1,10 +1,9 @@
-const App = () => {
-  return (
-    <main>
-      <h1>코레일 모바일 웹</h1>
-      <p>프로젝트 초기 세팅</p>
-    </main>
-  );
-};
+import { RouterProvider } from 'react-router/dom'
 
-export default App;
+import { router } from './router/router'
+
+const App = () => {
+  return <RouterProvider router={router} />
+}
+
+export default App
