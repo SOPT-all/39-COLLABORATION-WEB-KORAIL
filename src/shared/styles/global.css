@@ -6,8 +6,16 @@
   body {
     min-width: 320px;
     min-height: 100vh;
-    background-color: var(--color-gray-0);
+    background-color: var(--color-gray-50);
     color: var(--color-slate-900);
     font-family: var(--font-noto-sans-kr);
+  }
+
+  #root {
+    width: 100%;
+    max-width: 375px;
+    min-height: 100dvh;
+    margin-inline: auto;
+    background-color: var(--color-gray-0);
   }
 }
