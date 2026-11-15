@@ -12,4 +12,17 @@ const routes = [
   { path: '/reservation-confirmation', Component: ReservationConfirmationPage },
 ]
 
-export const router = createBrowserRouter(routes)
+const uiRoutes =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_UI_GUIDE === 'true'
+    ? [
+        {
+          path: '/ui',
+          lazy: async () => {
+            const { default: UiPage } = await import('@/pages/ui/style-guide')
+            return { Component: UiPage }
+          },
+        },
+      ]
+    : []
+
+export const router = createBrowserRouter([...routes, ...uiRoutes])

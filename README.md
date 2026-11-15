@@ -354,6 +354,19 @@ refactor/train-card/#30
 
 <br />
 
+## UI 가이드(FOR 어벤져스)
+
+- 로컬: `pnpm dev`를 실행하고 `/ui`를 엽니다.
+- PR 프리뷰: GitHub의 배포 완료 댓글에서 **UI 가이드**를 선택합니다.
+- 공통 예시 추가: `src/pages/ui/style-guide.tsx`의 **공통 컴포넌트** 섹션을 수정합니다.
+- 페이지별 예시 추가: `src/pages/ui/examples/`에서 담당 페이지 파일만 수정합니다.
+  - 홈: `home-examples.tsx`
+  - 열차 조회: `train-search-examples.tsx`
+  - 좌석 선택: `seat-selection-examples.tsx`
+  - 결제 대기: `reservation-confirmation-examples.tsx`
+- 예시 작성: 실제 컴포넌트를 가져와 예시 props를 넘깁니다.
+- 예시 분류: 예시를 추가하는 PR 작성자가 여러 화면에서 재사용하는 UI는 **공통 컴포넌트**에, 특정 화면 전용 UI는 **페이지별 컴포넌트**에 넣습니다. 코드의 폴더 경로와 관계없이 실제 사용 범위를 기준으로 분류합니다.
+
 ## 어벤져스's 협업 공간
 
 - [OUR Notion](https://app.notion.com/p/1Team-40ca4942abfc80a2aed2efed7e7affa9?source=copy_link)
