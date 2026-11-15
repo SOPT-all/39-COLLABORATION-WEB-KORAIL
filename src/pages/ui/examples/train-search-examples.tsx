@@ -44,7 +44,7 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
   return (
     <>
       {TrainTypeFilter && (
-        <ExampleCard heading='h4' title='열차 종류 필터'>
+        <ExampleCard heading='h4' title='열차 종류 필터' fullWidth>
           <TrainTypeFilter
             selectedTrainType={selectedTrainType}
             onTrainTypeChange={handleTrainTypeChange}
