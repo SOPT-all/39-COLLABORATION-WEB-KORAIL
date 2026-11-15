@@ -1,5 +1,6 @@
 import { useState, type ButtonHTMLAttributes, type ComponentType } from 'react'
 
+import BottomSheet from '@/shared/components/bottom-sheet'
 import ExampleCard from './example-card'
 import HomeExamples from './examples/home-examples'
 import ReservationConfirmationExamples from './examples/reservation-confirmation-examples'
@@ -51,6 +52,7 @@ const typographySamples = [
 
 const UiPage = () => {
   const [lastAction, setLastAction] = useState('')
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
   const hasSharedExamples = Header || Button || TrainTimeRow
 
   return (
@@ -104,6 +106,29 @@ const UiPage = () => {
               <TrainTimeRow {...trainTimeSample} stopStation='서대구정차' />
               <TrainTimeRow {...trainTimeSample} />
             </div>
+          </ExampleCard>
+        )}
+        {Button && (
+          <ExampleCard title='바텀시트'>
+            <div className='px-2'>
+              <Button onClick={() => setIsSheetOpen(true)}>호차 선택 예시</Button>
+            </div>
+
+            <BottomSheet
+              open={isSheetOpen}
+              onClose={() => setIsSheetOpen(false)}
+              title='호차 선택'
+              maxBodyHeight={399}
+              bottomPadding={60}
+            >
+              <ul className='divide-y divide-gray-200'>
+                {Array.from({ length: 20 }, (_, index) => index + 1).map((carNumber) => (
+                  <li key={carNumber} className='py-4'>
+                    일반실 {carNumber}호차
+                  </li>
+                ))}
+              </ul>
+            </BottomSheet>
           </ExampleCard>
         )}
       </section>
