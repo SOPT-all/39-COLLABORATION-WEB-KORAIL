@@ -1,4 +1,4 @@
-import ChevronRightIcon from '@/shared/icons/chevron-right.svg?react'
+import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg?react'
 
 import Button from '@/shared/components/button'
 
@@ -20,7 +20,7 @@ const SeatSelectionCta = ({
   return (
     <section
       aria-label='좌석 선택 현황'
-      className='flex w-[375px] flex-col overflow-hidden border-t border-slate-200 bg-gray-0 p-4'
+      className='flex w-full max-w-[375px] flex-col overflow-hidden border-t border-slate-200 bg-gray-0 p-4'
     >
       <div className='flex w-full flex-col gap-[18px]'>
         <header className='flex h-6 w-full items-center justify-between'>
@@ -41,7 +41,12 @@ const SeatSelectionCta = ({
           </button>
         </header>
 
-        <Button disabled={isSeatSelectionDisabled} width={343} onClick={onSeatSelectClick}>
+        <Button
+          className='max-w-full'
+          disabled={isSeatSelectionDisabled}
+          width={343}
+          onClick={onSeatSelectClick}
+        >
           좌석 선택하기
         </Button>
       </div>
