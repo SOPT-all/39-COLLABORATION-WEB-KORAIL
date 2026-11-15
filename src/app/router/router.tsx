@@ -12,10 +12,10 @@ const routes = [
     children: [
       { path: '/', Component: HomePage },
       { path: '/train-search', Component: TrainSearchPage },
-      { path: '/seat-selection/:trainRunId', Component: SeatSelectionPage },
       { path: '/reservation-confirmation', Component: ReservationConfirmationPage },
     ],
   },
+  { path: '/seat-selection/:trainRunId', Component: SeatSelectionPage },
 ]
 
 export const router = createBrowserRouter(routes)
