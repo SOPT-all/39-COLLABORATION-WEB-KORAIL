@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import { useState, type ComponentType } from 'react'
 
 import type { TrainResult, TrainType } from '@/pages/train-search/types/train-result'
 
@@ -23,11 +23,17 @@ const [NextDaySearchButton] = Object.values(
   ),
 )
 
-const [TrainResultCard] = Object.values(
-  import.meta.glob<ComponentType<{ train: TrainResult; isSelected?: boolean }>>(
-    '/src/pages/train-search/components/train-result-card.tsx',
-    { eager: true, import: 'default' },
-  ),
+const [TrainResultList] = Object.values(
+  import.meta.glob<
+    ComponentType<{
+      trains: TrainResult[]
+      selectedTrainId?: string
+      onTrainSelect?: (train: TrainResult) => void
+    }>
+  >('/src/pages/train-search/components/train-result-list.tsx', {
+    eager: true,
+    import: 'default',
+  }),
 )
 
 const trainLabels: Record<TrainType, string> = {
@@ -55,7 +61,9 @@ const trainResultSamples: TrainResult[] = (
 }))
 
 const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void }) => {
-  if (!TrainDetailActionButtons && !NextDaySearchButton && !TrainResultCard) {
+  const [selectedTrainId, setSelectedTrainId] = useState<string>()
+
+  if (!TrainDetailActionButtons && !NextDaySearchButton && !TrainResultList) {
     return <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
   }
 
@@ -84,20 +92,18 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
           />
         </ExampleCard>
       )}
-      {TrainResultCard && (
-        <ExampleCard heading='h4' title='열차 조회 결과 카드 · 미선택 / 선택'>
+      {TrainResultList && (
+        <ExampleCard heading='h4' title='열차 조회 결과 목록 · 결과 있음 / 없음'>
           <div className='space-y-5'>
-            {trainResultSamples.map((train) => (
-              <section key={train.id} className='space-y-2'>
-                <h5 className='px-1 text-label-12-m text-gray-700'>
-                  {trainLabels[train.trainType]}
-                </h5>
-                <div className='space-y-2'>
-                  <TrainResultCard train={train} />
-                  <TrainResultCard isSelected train={train} />
-                </div>
-              </section>
-            ))}
+            <TrainResultList
+              trains={trainResultSamples}
+              selectedTrainId={selectedTrainId}
+              onTrainSelect={(train) => {
+                setSelectedTrainId(train.id)
+                onAction(`${trainLabels[train.trainType]} ${train.trainNumber} 열차 선택`)
+              }}
+            />
+            <TrainResultList trains={[]} />
           </div>
         </ExampleCard>
       )}

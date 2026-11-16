@@ -8,6 +8,7 @@ import TrainTimeRow from '@/shared/components/train-time-row'
 interface TrainResultCardProps {
   train: TrainResult
   isSelected?: boolean
+  onSelect?: () => void
 }
 
 interface FareInfoProps {
@@ -70,7 +71,7 @@ const FareInfo = ({ fare, rewardRate, seatLabel }: FareInfoProps) => {
   )
 }
 
-const TrainResultCard = ({ train, isSelected = false }: TrainResultCardProps) => {
+const TrainResultCard = ({ train, isSelected = false, onSelect }: TrainResultCardProps) => {
   const {
     arrivalStation,
     arrivalTime,
@@ -86,13 +87,10 @@ const TrainResultCard = ({ train, isSelected = false }: TrainResultCardProps) =>
   } = train
   const { borderClassName, label, logo, logoWidth } = trainAppearance[trainType]
   const cardBorderClassName = isSelected ? 'border-y border-r border-l-4' : 'border-l-4'
-  const cardWidthClassName = isSelected ? 'max-w-[340px]' : 'max-w-[339px]'
+  const cardClassName = `flex w-full flex-col items-start gap-3 rounded-12 border-solid bg-gray-0 py-2 pr-2 pl-3 shadow-[0_0_2px_rgba(0,0,0,0.08)] ${borderClassName} ${cardBorderClassName}`
 
-  return (
-    <article
-      aria-label={`${label} ${trainNumber} 열차`}
-      className={`mx-auto flex w-full flex-col items-start gap-3 rounded-12 border-solid bg-gray-0 py-2 pr-2 pl-3 shadow-[0_0_2px_rgba(0,0,0,0.08)] ${borderClassName} ${cardBorderClassName} ${cardWidthClassName}`}
-    >
+  const cardContent = (
+    <>
       <div className='flex w-full flex-col items-start gap-2'>
         <div className='flex h-[18px] w-full items-center gap-2'>
           <img alt='' className='block shrink-0' height={12} src={logo} width={logoWidth} />
@@ -115,6 +113,26 @@ const TrainResultCard = ({ train, isSelected = false }: TrainResultCardProps) =>
         <FareInfo fare={standardFare} rewardRate={rewardRate} seatLabel='일반실' />
         <FareInfo fare={firstClassFare} rewardRate={rewardRate} seatLabel='특실' />
       </div>
+    </>
+  )
+
+  if (onSelect) {
+    return (
+      <button
+        type='button'
+        aria-label={`${label} ${trainNumber} 열차 선택`}
+        aria-pressed={isSelected}
+        className={`${cardClassName} text-left`}
+        onClick={onSelect}
+      >
+        {cardContent}
+      </button>
+    )
+  }
+
+  return (
+    <article aria-label={`${label} ${trainNumber} 열차`} className={cardClassName}>
+      {cardContent}
     </article>
   )
 }
