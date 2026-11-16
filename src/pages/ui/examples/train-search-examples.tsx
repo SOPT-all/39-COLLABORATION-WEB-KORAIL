@@ -14,6 +14,12 @@ const [TrainDetailActionButtons] = Object.values(
     import: 'default',
   }),
 )
+const [NextDaySearchButton] = Object.values(
+  import.meta.glob<ComponentType<{ nextDateLabel: string; onClick?: () => void }>>(
+    '/src/pages/train-search/components/next-day-search-button.tsx',
+    { eager: true, import: 'default' },
+  ),
+)
 
 type TrainType = 'all' | 'itx-cheongchun' | 'itx-saemaeul' | 'ktx' | 'mugunghwa'
 
@@ -32,7 +38,7 @@ const [TrainTypeFilter] = Object.values(
 const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void }) => {
   const [selectedTrainType, setSelectedTrainType] = useState<TrainType>('mugunghwa')
 
-  if (!TrainDetailActionButtons && !TrainTypeFilter) {
+  if (!TrainDetailActionButtons && !NextDaySearchButton && !TrainTypeFilter) {
     return <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
   }
 
@@ -64,6 +70,14 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
               onReservationClick={() => onAction('열차 상세에서 예매하기')}
             />
           </div>
+        </ExampleCard>
+      )}
+      {NextDaySearchButton && (
+        <ExampleCard heading='h4' title='다음날 열차 조회'>
+          <NextDaySearchButton
+            nextDateLabel='10.27 (화)'
+            onClick={() => onAction('다음날 열차 조회')}
+          />
         </ExampleCard>
       )}
     </>
