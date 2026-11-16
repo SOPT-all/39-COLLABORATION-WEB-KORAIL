@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react'
 
-import type { TrainDetailInfo, TrainType } from '@/pages/train-search/types/train-detail'
+import type {
+  TrainDetailInfo,
+  TrainFareOption,
+  TrainSeatGrade,
+  TrainType,
+} from '@/pages/train-search/types/train-detail'
 import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg'
 import ItxCheongchunLogo from '@/shared/assets/logo-itx-cheongchun.png'
 import ItxSaemaeulLogo from '@/shared/assets/logo-itx-saemaeul.png'
@@ -12,8 +17,12 @@ import TrainTimeRow from '@/shared/components/train-time-row'
 interface TrainDetailSheetProps {
   open: boolean
   train: TrainDetailInfo
+  fareOptions: TrainFareOption[]
+  selectedSeatGrade: TrainSeatGrade
+  passengerSummary: string
   onClose: () => void
   onStopDetailClick: () => void
+  onSeatGradeChange: (seatGrade: TrainSeatGrade) => void
 }
 
 interface TrainDetailHeaderProps {
@@ -24,6 +33,13 @@ interface TrainDetailHeaderProps {
 interface TrainLogo {
   alt: string
   src: string
+}
+
+interface TrainFareTabsProps {
+  fareOptions: TrainFareOption[]
+  selectedSeatGrade: TrainSeatGrade
+  passengerSummary: string
+  onSeatGradeChange: (seatGrade: TrainSeatGrade) => void
 }
 
 const trainLogos: Record<TrainType, TrainLogo> = {
@@ -74,7 +90,59 @@ const TrainDetailHeader = ({ train, closeButton }: TrainDetailHeaderProps) => {
   )
 }
 
-const TrainDetailSheet = ({ open, train, onClose, onStopDetailClick }: TrainDetailSheetProps) => {
+const TrainFareTabs = ({
+  fareOptions,
+  selectedSeatGrade,
+  passengerSummary,
+  onSeatGradeChange,
+}: TrainFareTabsProps) => {
+  return (
+    <section aria-label='운임 요금' className='flex w-full flex-col gap-2'>
+      <div className='flex w-full items-center justify-between overflow-hidden whitespace-nowrap'>
+        <h2 className='text-heading-16-b text-gray-900'>운임 요금</h2>
+        <p className='min-w-0 truncate text-body-14-r text-gray-500'>{passengerSummary}</p>
+      </div>
+
+      <div
+        role='tablist'
+        aria-label='좌석 등급'
+        className='flex w-full gap-0.5 overflow-hidden rounded-8 bg-slate-50 p-1'
+      >
+        {fareOptions.map(({ seatGrade, label }) => {
+          const isSelected = selectedSeatGrade === seatGrade
+
+          return (
+            <button
+              key={seatGrade}
+              type='button'
+              role='tab'
+              aria-selected={isSelected}
+              className={`h-10 min-w-0 flex-1 rounded-8 px-3 py-1 text-center ${
+                isSelected
+                  ? 'bg-gray-0 text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'
+                  : 'text-body-14-m text-gray-500'
+              }`}
+              onClick={() => onSeatGradeChange(seatGrade)}
+            >
+              {label}
+            </button>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+const TrainDetailSheet = ({
+  open,
+  train,
+  fareOptions,
+  selectedSeatGrade,
+  passengerSummary,
+  onClose,
+  onStopDetailClick,
+  onSeatGradeChange,
+}: TrainDetailSheetProps) => {
   const { departureTime, departureStation, arrivalTime, arrivalStation, duration, stopStation } =
     train
 
@@ -85,29 +153,38 @@ const TrainDetailSheet = ({ open, train, onClose, onStopDetailClick }: TrainDeta
       title='열차 상세'
       renderHeader={(closeButton) => <TrainDetailHeader train={train} closeButton={closeButton} />}
     >
-      <section aria-label='열차 운행 정보' className='rounded-8 bg-slate-50 px-4 py-1'>
-        <div className='py-3'>
-          <TrainTimeRow
-            departureTime={departureTime}
-            departureStation={departureStation}
-            arrivalTime={arrivalTime}
-            arrivalStation={arrivalStation}
-            duration={duration}
-            stopStation={stopStation}
-          />
-        </div>
+      <div className='flex w-full flex-col gap-4'>
+        <section aria-label='열차 운행 정보' className='rounded-8 bg-slate-50 px-4 py-1'>
+          <div className='py-3'>
+            <TrainTimeRow
+              departureTime={departureTime}
+              departureStation={departureStation}
+              arrivalTime={arrivalTime}
+              arrivalStation={arrivalStation}
+              duration={duration}
+              stopStation={stopStation}
+            />
+          </div>
 
-        <button
-          type='button'
-          className='flex h-[42px] w-full items-center justify-between border-t border-slate-100 text-left text-body-14-r text-gray-700'
-          onClick={onStopDetailClick}
-        >
-          <span>정차역 · 소요시간 상세</span>
-          <span className='flex h-full w-11 shrink-0 items-center justify-end'>
-            <img alt='' aria-hidden='true' height={24} src={ChevronRightIcon} width={24} />
-          </span>
-        </button>
-      </section>
+          <button
+            type='button'
+            className='flex h-[42px] w-full items-center justify-between border-t border-slate-100 text-left text-body-14-r text-gray-700'
+            onClick={onStopDetailClick}
+          >
+            <span>정차역 · 소요시간 상세</span>
+            <span className='flex h-full w-11 shrink-0 items-center justify-end'>
+              <img alt='' aria-hidden='true' height={24} src={ChevronRightIcon} width={24} />
+            </span>
+          </button>
+        </section>
+
+        <TrainFareTabs
+          fareOptions={fareOptions}
+          selectedSeatGrade={selectedSeatGrade}
+          passengerSummary={passengerSummary}
+          onSeatGradeChange={onSeatGradeChange}
+        />
+      </div>
     </BottomSheet>
   )
 }
