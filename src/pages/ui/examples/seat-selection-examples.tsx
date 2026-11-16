@@ -14,7 +14,7 @@ const [SeatSelectionCta] = Object.values(
 const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => void }) => (
   <>
     <ExampleCard heading='h4' title='좌석 선택 운행정보 헤더' fullWidth>
-      <div className='h-64 overflow-y-auto'>
+      <div className='flex h-64 flex-col'>
         <SeatSelectionHeader
           trainLabel='KTX,1'
           departureDateTime='10.26 (월) 오후 5:13'
@@ -23,7 +23,7 @@ const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => voi
           onClose={() => onAction('좌석 선택 닫기')}
         />
 
-        <ol className='divide-y divide-gray-100 px-5'>
+        <ol className='min-h-0 flex-1 divide-y divide-gray-100 overflow-y-auto px-5'>
           {Array.from({ length: 6 }, (_, index) => (
             <li key={index + 1} className='py-4 text-body-14-r'>
               좌석 {index + 1}열
