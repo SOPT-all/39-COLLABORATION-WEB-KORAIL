@@ -3,6 +3,9 @@
 @import './tokens/index.css';
 
 @layer base {
+  html:has(dialog[data-bottom-sheet]:modal) {
+    overflow: hidden;
+  }
   body {
     min-width: 320px;
     min-height: 100vh;
