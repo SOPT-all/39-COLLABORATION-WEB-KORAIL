@@ -24,7 +24,7 @@ const StationSelector = ({
         onClick={onDepartureStationClick}
       >
         <span className='w-full text-label-12-r text-gray-600'>출발</span>
-        <strong className='w-full truncate text-subtitle-20-b text-gray-900'>
+        <strong className='w-full text-subtitle-20-b whitespace-nowrap text-gray-900'>
           {departureStation}
         </strong>
       </button>
@@ -45,7 +45,7 @@ const StationSelector = ({
         onClick={onArrivalStationClick}
       >
         <span className='w-full text-label-12-r text-gray-600'>도착</span>
-        <strong className='w-full truncate text-subtitle-20-b text-gray-900'>
+        <strong className='w-full text-subtitle-20-b whitespace-nowrap text-gray-900'>
           {arrivalStation}
         </strong>
       </button>
