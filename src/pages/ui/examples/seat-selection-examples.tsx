@@ -19,7 +19,7 @@ const sampleCoaches: CoachOption[] = [17, 6, 0, 13, 5, 0, 0, 3, 0].map(
     coachId: 101 + index,
     coachNumber: index + 1,
     remainingSeatCount,
-    totalSeatCount: 50,
+    totalSeatCount: 56,
     reservable: remainingSeatCount > 0,
     description: index === 3 ? '유아동반석,휠체어석,전동휠체어석' : undefined,
   }),
