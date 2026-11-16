@@ -1,5 +1,4 @@
-import type { ReactNode } from 'react'
-
+import CloseIcon from '@/pages/train-search/assets/icon-close.svg'
 import ItxCheongchunLogo from '@/pages/train-search/assets/logo-itx-cheongchun.png'
 import ItxSaemaeulLogo from '@/pages/train-search/assets/logo-itx-saemaeul.png'
 import KtxLogo from '@/pages/train-search/assets/logo-ktx.png'
@@ -11,7 +10,7 @@ import type {
   TrainSeatGrade,
   TrainType,
 } from '@/pages/train-search/types/train-detail'
-import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg'
+import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg?react'
 import BottomSheet from '@/shared/components/bottom-sheet'
 import TrainTimeRow from '@/shared/components/train-time-row'
 
@@ -31,7 +30,7 @@ interface TrainDetailSheetProps {
 
 interface TrainDetailHeaderProps {
   train: TrainDetailInfo
-  closeButton: ReactNode
+  onClose: () => void
 }
 
 interface TrainLogo {
@@ -74,7 +73,7 @@ const trainLogos: Record<TrainType, TrainLogo> = {
   },
 }
 
-const TrainDetailHeader = ({ train, closeButton }: TrainDetailHeaderProps) => {
+const TrainDetailHeader = ({ train, onClose }: TrainDetailHeaderProps) => {
   const { trainType, trainNumber, departureDate, departureStation, arrivalStation } = train
   const trainLogo = trainLogos[trainType]
 
@@ -98,7 +97,16 @@ const TrainDetailHeader = ({ train, closeButton }: TrainDetailHeaderProps) => {
           {departureDate} · {departureStation} → {arrivalStation}
         </p>
       </div>
-      {closeButton}
+      <div className='relative h-6 w-[34px] shrink-0'>
+        <button
+          type='button'
+          aria-label='닫기'
+          className='absolute top-1/2 right-0 flex size-11 -translate-y-1/2 items-center justify-end'
+          onClick={onClose}
+        >
+          <img alt='' aria-hidden='true' src={CloseIcon} />
+        </button>
+      </div>
     </div>
   )
 }
@@ -180,7 +188,7 @@ const TrainDetailSheet = ({
       open={open}
       onClose={onClose}
       title='열차 상세'
-      renderHeader={(closeButton) => <TrainDetailHeader train={train} closeButton={closeButton} />}
+      renderHeader={() => <TrainDetailHeader train={train} onClose={onClose} />}
       footer={
         <div className='flex w-full flex-col'>
           <TrainTotalPrice price={totalPrice} />
@@ -213,7 +221,7 @@ const TrainDetailSheet = ({
           >
             <span>정차역 · 소요시간 상세</span>
             <span className='flex h-full w-11 shrink-0 items-center justify-end'>
-              <img alt='' aria-hidden='true' height={24} src={ChevronRightIcon} width={24} />
+              <ChevronRightIcon aria-hidden='true' className='[&_path]:stroke-gray-700' />
             </span>
           </button>
         </section>
