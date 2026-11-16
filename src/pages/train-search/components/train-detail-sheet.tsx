@@ -6,6 +6,7 @@ import type {
   TrainSeatGrade,
   TrainType,
 } from '@/pages/train-search/types/train-detail'
+import TrainDetailActionButtons from '@/pages/train-search/components/train-detail-action-buttons'
 import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg'
 import ItxCheongchunLogo from '@/shared/assets/logo-itx-cheongchun.png'
 import ItxSaemaeulLogo from '@/shared/assets/logo-itx-saemaeul.png'
@@ -20,9 +21,12 @@ interface TrainDetailSheetProps {
   fareOptions: TrainFareOption[]
   selectedSeatGrade: TrainSeatGrade
   passengerSummary: string
+  isReservationDisabled?: boolean
   onClose: () => void
   onStopDetailClick: () => void
   onSeatGradeChange: (seatGrade: TrainSeatGrade) => void
+  onReservationClick: () => void
+  onSeatSelectClick: () => void
 }
 
 interface TrainDetailHeaderProps {
@@ -40,6 +44,10 @@ interface TrainFareTabsProps {
   selectedSeatGrade: TrainSeatGrade
   passengerSummary: string
   onSeatGradeChange: (seatGrade: TrainSeatGrade) => void
+}
+
+interface TrainTotalPriceProps {
+  price: number
 }
 
 const trainLogos: Record<TrainType, TrainLogo> = {
@@ -133,18 +141,34 @@ const TrainFareTabs = ({
   )
 }
 
+const priceFormatter = new Intl.NumberFormat('ko-KR')
+
+const TrainTotalPrice = ({ price }: TrainTotalPriceProps) => {
+  return (
+    <div className='flex w-full items-center justify-between overflow-hidden border-t border-slate-200 py-2 whitespace-nowrap'>
+      <span className='text-body-14-m text-gray-700'>총 결제 금액</span>
+      <strong className='text-title-22-b text-blue-500'>{priceFormatter.format(price)}원</strong>
+    </div>
+  )
+}
+
 const TrainDetailSheet = ({
   open,
   train,
   fareOptions,
   selectedSeatGrade,
   passengerSummary,
+  isReservationDisabled = false,
   onClose,
   onStopDetailClick,
   onSeatGradeChange,
+  onReservationClick,
+  onSeatSelectClick,
 }: TrainDetailSheetProps) => {
   const { departureTime, departureStation, arrivalTime, arrivalStation, duration, stopStation } =
     train
+  const selectedFare = fareOptions.find(({ seatGrade }) => seatGrade === selectedSeatGrade)
+  const totalPrice = selectedFare?.price ?? 0
 
   return (
     <BottomSheet
@@ -152,6 +176,17 @@ const TrainDetailSheet = ({
       onClose={onClose}
       title='열차 상세'
       renderHeader={(closeButton) => <TrainDetailHeader train={train} closeButton={closeButton} />}
+      footer={
+        <div className='flex w-full flex-col'>
+          <TrainTotalPrice price={totalPrice} />
+          <TrainDetailActionButtons
+            isReservationDisabled={isReservationDisabled}
+            reservationLabel='바로 예매하기'
+            onReservationClick={onReservationClick}
+            onSeatSelectClick={onSeatSelectClick}
+          />
+        </div>
+      }
     >
       <div className='flex w-full flex-col gap-4'>
         <section aria-label='열차 운행 정보' className='rounded-8 bg-slate-50 px-4 py-1'>
