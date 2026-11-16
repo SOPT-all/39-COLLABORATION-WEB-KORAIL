@@ -114,7 +114,7 @@ const UiPage = () => {
         </h2>
         <div className='space-y-4'>
           <h3 className='text-body-14-b'>홈</h3>
-          <HomeExamples />
+          <HomeExamples onAction={setLastAction} />
         </div>
         <div className='space-y-4'>
           <h3 className='text-body-14-b'>열차 조회</h3>
