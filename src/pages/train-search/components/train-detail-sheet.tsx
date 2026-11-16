@@ -93,7 +93,7 @@ const TrainDetailHeader = ({ train, onClose }: TrainDetailHeaderProps) => {
           </span>
         </div>
 
-        <p className='max-w-full truncate text-subtitle-20-b text-gray-900'>
+        <p className='max-w-full text-subtitle-20-b whitespace-nowrap text-gray-900'>
           {departureDate} · {departureStation} → {arrivalStation}
         </p>
       </div>
