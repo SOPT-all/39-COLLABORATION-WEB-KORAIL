@@ -1,17 +1,17 @@
 import type { ReactNode } from 'react'
 
+import ItxCheongchunLogo from '@/pages/train-search/assets/logo-itx-cheongchun.png'
+import ItxSaemaeulLogo from '@/pages/train-search/assets/logo-itx-saemaeul.png'
+import KtxLogo from '@/pages/train-search/assets/logo-ktx.png'
+import MugunghwaLogo from '@/pages/train-search/assets/logo-mugunghwa.png'
+import TrainDetailActionButtons from '@/pages/train-search/components/train-detail-action-buttons'
 import type {
   TrainDetailInfo,
   TrainFareOption,
   TrainSeatGrade,
   TrainType,
 } from '@/pages/train-search/types/train-detail'
-import TrainDetailActionButtons from '@/pages/train-search/components/train-detail-action-buttons'
 import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg'
-import ItxCheongchunLogo from '@/shared/assets/logo-itx-cheongchun.png'
-import ItxSaemaeulLogo from '@/shared/assets/logo-itx-saemaeul.png'
-import KtxLogo from '@/shared/assets/logo-ktx.png'
-import MugunghwaLogo from '@/shared/assets/logo-mugunghwa.png'
 import BottomSheet from '@/shared/components/bottom-sheet'
 import TrainTimeRow from '@/shared/components/train-time-row'
 
@@ -37,6 +37,7 @@ interface TrainDetailHeaderProps {
 interface TrainLogo {
   alt: string
   src: string
+  width: number
 }
 
 interface TrainFareTabsProps {
@@ -54,18 +55,22 @@ const trainLogos: Record<TrainType, TrainLogo> = {
   'itx-cheongchun': {
     alt: 'ITX 청춘',
     src: ItxCheongchunLogo,
+    width: 37,
   },
   'itx-saemaeul': {
     alt: 'ITX 새마을',
     src: ItxSaemaeulLogo,
+    width: 49,
   },
   ktx: {
     alt: 'KTX',
     src: KtxLogo,
+    width: 36,
   },
   mugunghwa: {
     alt: '무궁화',
     src: MugunghwaLogo,
+    width: 35,
   },
 }
 
@@ -79,10 +84,10 @@ const TrainDetailHeader = ({ train, closeButton }: TrainDetailHeaderProps) => {
         <div className='flex w-full items-center gap-2'>
           <img
             alt={trainLogo.alt}
-            className='h-3 w-[49px] shrink-0 object-contain object-left'
+            className='h-3 w-auto shrink-0'
             height={12}
             src={trainLogo.src}
-            width={49}
+            width={trainLogo.width}
           />
           <span className='shrink-0 rounded-full bg-slate-50 px-2.5 py-0.5 text-caption-10-m text-gray-600'>
             {trainNumber}
