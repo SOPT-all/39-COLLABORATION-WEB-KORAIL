@@ -1,4 +1,7 @@
-import type { ComponentType } from 'react'
+import { useState, type ComponentType } from 'react'
+
+import SeatSelectionNoticeModal from '@/pages/seat-selection/components/seat-selection-notice-modal'
+import Button from '@/shared/components/button'
 
 import ExampleCard from '../example-card'
 
@@ -10,24 +13,35 @@ const [SeatSelectionCta] = Object.values(
 )
 
 const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => void }) => {
-  if (!SeatSelectionCta) {
-    return <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
-  }
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false)
 
   return (
     <>
-      <ExampleCard heading='h4' title='좌석 선택 하단 액션 · 미선택' fullWidth>
-        <SeatSelectionCta
-          selectedSeatCount={0}
-          onSeatSelectClick={() => onAction('좌석 선택 완료')}
-        />
+      <ExampleCard heading='h4' title='좌석 선택 안내 모달'>
+        <Button className='mx-auto max-w-full' onClick={() => setIsNoticeOpen(true)}>
+          안내 모달 열기
+        </Button>
       </ExampleCard>
-      <ExampleCard heading='h4' title='좌석 선택 하단 액션 · 1석 선택' fullWidth>
-        <SeatSelectionCta
-          selectedSeatCount={1}
-          onSeatSelectClick={() => onAction('좌석 선택 완료')}
-        />
-      </ExampleCard>
+
+      <SeatSelectionNoticeModal open={isNoticeOpen} onClose={() => setIsNoticeOpen(false)} />
+
+      {SeatSelectionCta && (
+        <>
+          <ExampleCard heading='h4' title='좌석 선택 하단 액션 · 미선택' fullWidth>
+            <SeatSelectionCta
+              selectedSeatCount={0}
+              onSeatSelectClick={() => onAction('좌석 선택 완료')}
+            />
+          </ExampleCard>
+
+          <ExampleCard heading='h4' title='좌석 선택 하단 액션 · 1석 선택' fullWidth>
+            <SeatSelectionCta
+              selectedSeatCount={1}
+              onSeatSelectClick={() => onAction('좌석 선택 완료')}
+            />
+          </ExampleCard>
+        </>
+      )}
     </>
   )
 }
