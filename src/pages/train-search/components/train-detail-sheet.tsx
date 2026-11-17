@@ -113,10 +113,17 @@ const TrainFareInfo = ({ fareOption, passengerSummary }: TrainFareInfoProps) => 
         <p className='min-w-0 truncate text-body-14-r text-gray-500'>{passengerSummary}</p>
       </div>
 
-      <div className='w-full rounded-8 bg-slate-50 p-1'>
-        <p className='flex h-10 w-full items-center justify-center rounded-8 bg-gray-0 px-3 py-1 text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'>
+      <div
+        role='group'
+        aria-label='좌석 등급'
+        className='flex w-full gap-0.5 rounded-8 bg-slate-50 p-1'
+      >
+        <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 bg-gray-0 px-3 py-1 text-center text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'>
           {fareOption.label}
-        </p>
+        </span>
+        <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 px-3 py-1 text-center text-body-14-m text-gray-500'>
+          특실
+        </span>
       </div>
     </section>
   )
