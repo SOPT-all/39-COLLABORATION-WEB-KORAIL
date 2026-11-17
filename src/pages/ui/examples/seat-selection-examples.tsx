@@ -6,7 +6,7 @@ import CarSelectionSheet, {
 import SeatGrid, { type Seat } from '@/pages/seat-selection/components/seat-grid'
 import SeatSelectionCta from '@/pages/seat-selection/components/seat-selection-cta'
 import SeatSelectionHeader from '@/pages/seat-selection/components/seat-selection-header'
-import Button from '@/shared/components/button'
+import CarSelectionTrigger from '@/pages/seat-selection/components/car-selection-trigger'
 
 import ExampleCard from '../example-card'
 
@@ -76,13 +76,12 @@ const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => voi
             onClose={() => onAction('좌석 선택 닫기')}
           />
 
-          <Button
-            aria-haspopup='dialog'
-            className='max-w-full shrink-0 self-center'
+          <CarSelectionTrigger
+            coachNumber={firstCoach.coachNumber}
+            remainingSeatCount={firstCoach.remainingSeatCount}
+            totalSeatCount={firstCoach.totalSeatCount}
             onClick={() => setIsCarSheetOpen(true)}
-          >
-            호차 선택
-          </Button>
+          />
 
           <div className='min-h-0 flex-1 overflow-y-auto py-2'>
             <SeatGrid
