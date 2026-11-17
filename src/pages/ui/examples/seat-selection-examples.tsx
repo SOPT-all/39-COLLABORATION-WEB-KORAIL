@@ -5,7 +5,8 @@ import CarSelectionSheet, {
 } from '@/pages/seat-selection/components/car-selection-sheet'
 import SeatGrid, { type Seat } from '@/pages/seat-selection/components/seat-grid'
 import SeatSelectionCta from '@/pages/seat-selection/components/seat-selection-cta'
-import Button from '@/shared/components/button'
+import SeatSelectionHeader from '@/pages/seat-selection/components/seat-selection-header'
+import CarSelectionTrigger from '@/pages/seat-selection/components/car-selection-trigger'
 
 import ExampleCard from '../example-card'
 
@@ -19,6 +20,8 @@ const sampleCoaches: CoachOption[] = [17, 6, 0, 13, 5, 0, 0, 3, 0].map(
     description: index === 3 ? '유아동반석,휠체어석,전동휠체어석' : undefined,
   }),
 )
+
+const [firstCoach] = sampleCoaches
 
 const columns = ['A', 'B', 'C', 'D'] as const
 const availableSeats = new Set([
@@ -63,11 +66,32 @@ const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => voi
 
   return (
     <>
-      <ExampleCard heading='h4' title='호차 선택 바텀시트'>
-        <div className='px-2'>
-          <Button aria-haspopup='dialog' onClick={() => setIsCarSheetOpen(true)}>
-            호차 선택
-          </Button>
+      <ExampleCard heading='h4' title='좌석 선택 운행정보 · 호차 선택 · 좌석 배치' fullWidth>
+        <div className='flex h-[420px] flex-col'>
+          <SeatSelectionHeader
+            trainLabel='KTX,1'
+            departureDateTime='10.26 (월) 오후 5:13'
+            departureStation='서울'
+            arrivalStation='부산'
+            onClose={() => onAction('좌석 선택 닫기')}
+          />
+
+          <CarSelectionTrigger
+            coachNumber={firstCoach.coachNumber}
+            remainingSeatCount={firstCoach.remainingSeatCount}
+            totalSeatCount={firstCoach.totalSeatCount}
+            onClick={() => setIsCarSheetOpen(true)}
+          />
+
+          <div className='min-h-0 flex-1 overflow-y-auto py-2'>
+            <SeatGrid
+              seats={exampleSeats}
+              selectedSeatId={selectedSeatId}
+              departureStation='서울'
+              arrivalStation='부산'
+              onSeatChange={setSelectedSeatId}
+            />
+          </div>
         </div>
 
         <CarSelectionSheet
@@ -76,18 +100,8 @@ const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => voi
           coaches={sampleCoaches}
           onSelectCoach={() => {
             setIsCarSheetOpen(false)
-            onAction('일반실 1호차 선택')
+            onAction(`일반실 ${firstCoach.coachNumber}호차 선택`)
           }}
-        />
-      </ExampleCard>
-
-      <ExampleCard heading='h4' title='일반실 1호차 좌석 배치' fullWidth>
-        <SeatGrid
-          seats={exampleSeats}
-          selectedSeatId={selectedSeatId}
-          departureStation='서울'
-          arrivalStation='부산'
-          onSeatChange={setSelectedSeatId}
         />
       </ExampleCard>
 
