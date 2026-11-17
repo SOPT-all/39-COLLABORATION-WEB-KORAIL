@@ -52,8 +52,6 @@ interface ReservationCardProps {
   stopStation?: string
   seat: string
   paymentDeadline: string
-  onCancelClick?: () => void
-  onCartClick?: () => void
 }
 
 const ReservationCard = ({
@@ -67,8 +65,6 @@ const ReservationCard = ({
   stopStation,
   seat,
   paymentDeadline,
-  onCancelClick,
-  onCartClick,
 }: ReservationCardProps) => {
   const { label, logo, logoWidth, borderClassName } = trainAppearance[trainType]
 
@@ -91,6 +87,7 @@ const ReservationCard = ({
           departureTime={departureTime}
           duration={duration}
           stopStation={stopStation}
+          stopStationWeight='regular'
         />
       </div>
 
@@ -106,10 +103,10 @@ const ReservationCard = ({
       </dl>
 
       <div className='flex w-full gap-2'>
-        <Button className='min-w-0 flex-1' variant='secondary' onClick={onCancelClick}>
+        <Button disabled className='min-w-0 flex-1 disabled:cursor-default!' variant='secondary'>
           예약취소
         </Button>
-        <Button className='min-w-0 flex-1' variant='secondary' onClick={onCartClick}>
+        <Button disabled className='min-w-0 flex-1 disabled:cursor-default!' variant='secondary'>
           장바구니
         </Button>
       </div>
