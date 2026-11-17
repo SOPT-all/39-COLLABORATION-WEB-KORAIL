@@ -1,3 +1,20 @@
-const HomeExamples = () => <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
+import TrainSearchCard from '@/pages/home/components/train-search-card'
+import ExampleCard from '@/pages/ui/example-card'
+
+interface HomeExamplesProps {
+  onAction: (action: string) => void
+}
+
+const HomeExamples = ({ onAction }: HomeExamplesProps) => {
+  const handleSearch = () => {
+    onAction('홈에서 열차 조회하기')
+  }
+
+  return (
+    <ExampleCard heading='h4' title='홈 열차 조회 조건 카드'>
+      <TrainSearchCard onSearch={handleSearch} />
+    </ExampleCard>
+  )
+}
 
 export default HomeExamples
