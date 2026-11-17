@@ -40,4 +40,10 @@
   --color-red-650: #af0202;
   --color-orange-300: #fef1e8;
   --color-orange-900: #ff8836;
+
+  --color-footer-bg: #333d49;
+  --color-footer-divider: #526174;
+  --color-footer-info: #999999;
+  --color-footer-copyright: #97a2b2;
+  --color-footer-highlight: #99badb;
 }
