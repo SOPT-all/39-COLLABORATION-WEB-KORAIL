@@ -7,7 +7,6 @@ import TrainDetailActionButtons from '@/pages/train-search/components/train-deta
 import type {
   TrainDetailInfo,
   TrainFareOption,
-  TrainSeatGrade,
   TrainType,
 } from '@/pages/train-search/types/train-detail'
 import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg?react'
@@ -17,13 +16,10 @@ import TrainTimeRow from '@/shared/components/train-time-row'
 interface TrainDetailSheetProps {
   open: boolean
   train: TrainDetailInfo
-  fareOptions: TrainFareOption[]
-  selectedSeatGrade: TrainSeatGrade
+  fareOption: TrainFareOption
   passengerSummary: string
   isReservationDisabled?: boolean
   onClose: () => void
-  onStopDetailClick: () => void
-  onSeatGradeChange: (seatGrade: TrainSeatGrade) => void
   onReservationClick: () => void
   onSeatSelectClick: () => void
 }
@@ -39,11 +35,9 @@ interface TrainLogo {
   width: number
 }
 
-interface TrainFareTabsProps {
-  fareOptions: TrainFareOption[]
-  selectedSeatGrade: TrainSeatGrade
+interface TrainFareInfoProps {
+  fareOption: TrainFareOption
   passengerSummary: string
-  onSeatGradeChange: (seatGrade: TrainSeatGrade) => void
 }
 
 interface TrainTotalPriceProps {
@@ -111,12 +105,7 @@ const TrainDetailHeader = ({ train, onClose }: TrainDetailHeaderProps) => {
   )
 }
 
-const TrainFareTabs = ({
-  fareOptions,
-  selectedSeatGrade,
-  passengerSummary,
-  onSeatGradeChange,
-}: TrainFareTabsProps) => {
+const TrainFareInfo = ({ fareOption, passengerSummary }: TrainFareInfoProps) => {
   return (
     <section aria-label='운임 요금' className='flex w-full flex-col gap-2'>
       <div className='flex w-full items-center justify-between overflow-hidden whitespace-nowrap'>
@@ -124,31 +113,10 @@ const TrainFareTabs = ({
         <p className='min-w-0 truncate text-body-14-r text-gray-500'>{passengerSummary}</p>
       </div>
 
-      <div
-        role='tablist'
-        aria-label='좌석 등급'
-        className='flex w-full gap-0.5 overflow-hidden rounded-8 bg-slate-50 p-1'
-      >
-        {fareOptions.map(({ seatGrade, label }) => {
-          const isSelected = selectedSeatGrade === seatGrade
-
-          return (
-            <button
-              key={seatGrade}
-              type='button'
-              role='tab'
-              aria-selected={isSelected}
-              className={`h-10 min-w-0 flex-1 rounded-8 px-3 py-1 text-center ${
-                isSelected
-                  ? 'bg-gray-0 text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'
-                  : 'text-body-14-m text-gray-500'
-              }`}
-              onClick={() => onSeatGradeChange(seatGrade)}
-            >
-              {label}
-            </button>
-          )
-        })}
+      <div className='w-full rounded-8 bg-slate-50 p-1'>
+        <p className='flex h-10 w-full items-center justify-center rounded-8 bg-gray-0 px-3 py-1 text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'>
+          {fareOption.label}
+        </p>
       </div>
     </section>
   )
@@ -168,20 +136,15 @@ const TrainTotalPrice = ({ price }: TrainTotalPriceProps) => {
 const TrainDetailSheet = ({
   open,
   train,
-  fareOptions,
-  selectedSeatGrade,
+  fareOption,
   passengerSummary,
   isReservationDisabled = false,
   onClose,
-  onStopDetailClick,
-  onSeatGradeChange,
   onReservationClick,
   onSeatSelectClick,
 }: TrainDetailSheetProps) => {
   const { departureTime, departureStation, arrivalTime, arrivalStation, duration, stopStation } =
     train
-  const selectedFare = fareOptions.find(({ seatGrade }) => seatGrade === selectedSeatGrade)
-  const totalPrice = selectedFare?.price ?? 0
 
   return (
     <BottomSheet
@@ -191,7 +154,7 @@ const TrainDetailSheet = ({
       renderHeader={() => <TrainDetailHeader train={train} onClose={onClose} />}
       footer={
         <div className='flex w-full flex-col'>
-          <TrainTotalPrice price={totalPrice} />
+          <TrainTotalPrice price={fareOption.price} />
           <TrainDetailActionButtons
             isReservationDisabled={isReservationDisabled}
             reservationLabel='바로 예매하기'
@@ -214,24 +177,15 @@ const TrainDetailSheet = ({
             />
           </div>
 
-          <button
-            type='button'
-            className='flex h-[42px] w-full items-center justify-between border-t border-slate-100 text-left text-body-14-r text-gray-700'
-            onClick={onStopDetailClick}
-          >
+          <div className='flex h-[42px] w-full items-center justify-between border-t border-slate-100 text-left text-body-14-r text-gray-700'>
             <span>정차역 · 소요시간 상세</span>
             <span className='flex h-full w-11 shrink-0 items-center justify-end'>
               <ChevronRightIcon aria-hidden='true' className='[&_path]:stroke-gray-700' />
             </span>
-          </button>
+          </div>
         </section>
 
-        <TrainFareTabs
-          fareOptions={fareOptions}
-          selectedSeatGrade={selectedSeatGrade}
-          passengerSummary={passengerSummary}
-          onSeatGradeChange={onSeatGradeChange}
-        />
+        <TrainFareInfo fareOption={fareOption} passengerSummary={passengerSummary} />
       </div>
     </BottomSheet>
   )
