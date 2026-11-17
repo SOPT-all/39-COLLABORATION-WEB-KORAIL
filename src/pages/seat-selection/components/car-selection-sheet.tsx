@@ -1,4 +1,5 @@
 import BottomSheet from '@/shared/components/bottom-sheet'
+import RemainingSeatCount from '@/pages/seat-selection/components/remaining-seat-count'
 
 export interface CoachOption {
   coachId: number
@@ -49,20 +50,11 @@ const CarSelectionSheet = ({ open, onClose, coaches, onSelectCoach }: CarSelecti
                 )}
               </span>
 
-              <span
-                className={`flex h-6 shrink-0 items-center gap-0.5 text-body-14-r whitespace-nowrap ${
-                  isSoldOut ? 'text-gray-400' : ''
-                }`}
-              >
-                <span className='min-w-[26px]'>잔여</span>
-                <span
-                  className={`min-w-7 text-right ${isSoldOut ? '' : 'text-body-14-b text-blue-500'}`}
-                >
-                  {coach.remainingSeatCount}석
-                </span>
-                <span className='min-w-1 text-center'>/</span>
-                <span className='min-w-7'>{coach.totalSeatCount}석</span>
-              </span>
+              <RemainingSeatCount
+                remainingSeatCount={coach.remainingSeatCount}
+                totalSeatCount={coach.totalSeatCount}
+                variant='sheet'
+              />
             </button>
           </li>
         )

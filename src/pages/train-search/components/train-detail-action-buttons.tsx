@@ -2,12 +2,14 @@ import Button from '@/shared/components/button'
 
 interface TrainDetailActionButtonsProps {
   isReservationDisabled?: boolean
+  reservationLabel?: string
   onReservationClick?: () => void
   onSeatSelectClick?: () => void
 }
 
 const TrainDetailActionButtons = ({
   isReservationDisabled = false,
+  reservationLabel = '예매하기',
   onReservationClick,
   onSeatSelectClick,
 }: TrainDetailActionButtonsProps) => {
@@ -27,7 +29,7 @@ const TrainDetailActionButtons = ({
         width={207}
         onClick={onReservationClick}
       >
-        예매하기
+        {reservationLabel}
       </Button>
     </div>
   )
