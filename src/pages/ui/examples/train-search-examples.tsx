@@ -1,9 +1,6 @@
-import { useState, type ComponentType } from 'react'
+import type { ComponentType } from 'react'
 
-import type {
-  TrainSearchCondition,
-  TripType,
-} from '@/pages/train-search/types/train-search-condition'
+import type { TrainSearchCondition } from '@/pages/train-search/types/train-search-condition'
 
 import ExampleCard from '../example-card'
 
@@ -30,17 +27,6 @@ const [TrainSearchForm] = Object.values(
   import.meta.glob<
     ComponentType<{
       condition: TrainSearchCondition
-      onTripTypeChange: (tripType: TripType) => void
-      onPreviousDateClick: () => void
-      onDateClick: () => void
-      onNextDateClick: () => void
-      onDepartureStationClick: () => void
-      onArrivalStationClick: () => void
-      onSwapStationsClick: () => void
-      onSeatGradeClick: () => void
-      onPassengerClick: () => void
-      onSeoulAreaIncludedChange: (isChecked: boolean) => void
-      onAdjacentStationIncludedChange: (isChecked: boolean) => void
       onSubmit: () => void
     }>
   >('/src/pages/train-search/components/train-search-form.tsx', {
@@ -62,8 +48,6 @@ const initialCondition: TrainSearchCondition = {
 }
 
 const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void }) => {
-  const [condition, setCondition] = useState(initialCondition)
-
   if (!TrainDetailActionButtons && !NextDaySearchButton && !TrainSearchForm) {
     return <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
   }
@@ -72,39 +56,7 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
     <>
       {TrainSearchForm && (
         <ExampleCard heading='h4' title='열차 조회 조건'>
-          <TrainSearchForm
-            condition={condition}
-            onTripTypeChange={(tripType) =>
-              setCondition((previousCondition) => ({ ...previousCondition, tripType }))
-            }
-            onPreviousDateClick={() => onAction('이전 날짜 선택')}
-            onDateClick={() => onAction('가는 날 선택')}
-            onNextDateClick={() => onAction('다음 날짜 선택')}
-            onDepartureStationClick={() => onAction('출발역 선택')}
-            onArrivalStationClick={() => onAction('도착역 선택')}
-            onSwapStationsClick={() =>
-              setCondition((previousCondition) => ({
-                ...previousCondition,
-                departureStation: previousCondition.arrivalStation,
-                arrivalStation: previousCondition.departureStation,
-              }))
-            }
-            onSeatGradeClick={() => onAction('좌석 등급 선택')}
-            onPassengerClick={() => onAction('인원 선택')}
-            onSeoulAreaIncludedChange={(isSeoulAreaIncluded) =>
-              setCondition((previousCondition) => ({
-                ...previousCondition,
-                isSeoulAreaIncluded,
-              }))
-            }
-            onAdjacentStationIncludedChange={(isAdjacentStationIncluded) =>
-              setCondition((previousCondition) => ({
-                ...previousCondition,
-                isAdjacentStationIncluded,
-              }))
-            }
-            onSubmit={() => onAction('열차 조회')}
-          />
+          <TrainSearchForm condition={initialCondition} onSubmit={() => onAction('열차 조회')} />
         </ExampleCard>
       )}
       {TrainDetailActionButtons && (
