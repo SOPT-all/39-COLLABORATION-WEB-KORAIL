@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from 'react'
+import type { ComponentType } from 'react'
 
 import type { TrainResult, TrainType } from '@/pages/train-search/types/train-result'
 
@@ -27,7 +27,6 @@ const [TrainResultList] = Object.values(
   import.meta.glob<
     ComponentType<{
       trains: TrainResult[]
-      selectedTrainId?: string
       onTrainSelect?: (train: TrainResult) => void
     }>
   >('/src/pages/train-search/components/train-result-list.tsx', {
@@ -61,8 +60,6 @@ const trainResultSamples: TrainResult[] = (
 }))
 
 const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void }) => {
-  const [selectedTrainId, setSelectedTrainId] = useState<string>()
-
   if (!TrainDetailActionButtons && !NextDaySearchButton && !TrainResultList) {
     return <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
   }
@@ -97,9 +94,7 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
           <div className='space-y-5'>
             <TrainResultList
               trains={trainResultSamples}
-              selectedTrainId={selectedTrainId}
               onTrainSelect={(train) => {
-                setSelectedTrainId(train.id)
                 onAction(`${trainLabels[train.trainType]} ${train.trainNumber} 열차 선택`)
               }}
             />

@@ -3,11 +3,10 @@ import TrainResultCard from '@/pages/train-search/components/train-result-card'
 
 interface TrainResultListProps {
   trains: TrainResult[]
-  selectedTrainId?: string
   onTrainSelect?: (train: TrainResult) => void
 }
 
-const TrainResultList = ({ trains, selectedTrainId, onTrainSelect }: TrainResultListProps) => {
+const TrainResultList = ({ trains, onTrainSelect }: TrainResultListProps) => {
   if (trains.length === 0) {
     return (
       <p
@@ -25,7 +24,6 @@ const TrainResultList = ({ trains, selectedTrainId, onTrainSelect }: TrainResult
         <li key={train.id}>
           <TrainResultCard
             train={train}
-            isSelected={train.id === selectedTrainId}
             onSelect={onTrainSelect ? () => onTrainSelect(train) : undefined}
           />
         </li>

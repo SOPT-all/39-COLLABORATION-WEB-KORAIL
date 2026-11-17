@@ -7,7 +7,6 @@ import TrainTimeRow from '@/shared/components/train-time-row'
 
 interface TrainResultCardProps {
   train: TrainResult
-  isSelected?: boolean
   onSelect?: () => void
 }
 
@@ -71,7 +70,7 @@ const FareInfo = ({ fare, rewardRate, seatLabel }: FareInfoProps) => {
   )
 }
 
-const TrainResultCard = ({ train, isSelected = false, onSelect }: TrainResultCardProps) => {
+const TrainResultCard = ({ train, onSelect }: TrainResultCardProps) => {
   const {
     arrivalStation,
     arrivalTime,
@@ -86,8 +85,7 @@ const TrainResultCard = ({ train, isSelected = false, onSelect }: TrainResultCar
     trainType,
   } = train
   const { borderClassName, label, logo, logoWidth } = trainAppearance[trainType]
-  const cardBorderClassName = isSelected ? 'border-y border-r border-l-4' : 'border-l-4'
-  const cardClassName = `flex w-full flex-col items-start gap-3 rounded-12 border-solid bg-gray-0 py-2 pr-2 pl-3 shadow-[0_0_2px_rgba(0,0,0,0.08)] ${borderClassName} ${cardBorderClassName}`
+  const cardClassName = `flex w-full flex-col items-start gap-3 rounded-12 border-l-4 border-solid bg-gray-0 py-2 pr-2 pl-3 shadow-[0_0_2px_rgba(0,0,0,0.08)] ${borderClassName}`
 
   const cardContent = (
     <>
@@ -121,8 +119,7 @@ const TrainResultCard = ({ train, isSelected = false, onSelect }: TrainResultCar
       <button
         type='button'
         aria-label={`${label} ${trainNumber} 열차 선택`}
-        aria-pressed={isSelected}
-        className={`${cardClassName} text-left`}
+        className={`${cardClassName} text-left active:bg-slate-50`}
         onClick={onSelect}
       >
         {cardContent}
