@@ -151,7 +151,7 @@ const UiPage = () => {
         </div>
         <div className='space-y-4'>
           <h3 className='text-body-14-b'>결제 대기</h3>
-          <ReservationConfirmationExamples />
+          <ReservationConfirmationExamples onAction={setLastAction} />
         </div>
         <p role='status' className='text-body-14-r text-gray-700'>
           {lastAction

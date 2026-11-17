@@ -35,6 +35,12 @@ const [ReservationCard] = Object.values(
     import: 'default',
   }),
 )
+const [PaymentButton] = Object.values(
+  import.meta.glob<ComponentType<{ onClick?: () => void }>>(
+    '/src/pages/reservation-confirmation/components/payment-button.tsx',
+    { eager: true, import: 'default' },
+  ),
+)
 
 const reservationCardTrainTypes: TrainType[] = [
   'ktx',
@@ -43,8 +49,8 @@ const reservationCardTrainTypes: TrainType[] = [
   'mugunghwa',
 ]
 
-const ReservationConfirmationExamples = () => {
-  if (!ReservationTitle && !ReservationNotice && !ReservationCard) {
+const ReservationConfirmationExamples = ({ onAction }: { onAction: (action: string) => void }) => {
+  if (!ReservationTitle && !ReservationNotice && !ReservationCard && !PaymentButton) {
     return <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
   }
 
@@ -79,6 +85,11 @@ const ReservationConfirmationExamples = () => {
               />
             ))}
           </div>
+        </ExampleCard>
+      )}
+      {PaymentButton && (
+        <ExampleCard heading='h4' title='결제하기 버튼'>
+          <PaymentButton onClick={() => onAction('결제하기')} />
         </ExampleCard>
       )}
     </>
