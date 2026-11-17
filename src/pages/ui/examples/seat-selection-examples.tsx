@@ -8,8 +8,8 @@ import Button from '@/shared/components/button'
 import ExampleCard from '../example-card'
 
 const [SeatSelectionCta] = Object.values(
-  import.meta.glob<ComponentType<{ selectedSeatCount: number; onSeatSelectClick: () => void }>>(
-    '/src/shared/components/seat-selection-cta.tsx',
+  import.meta.glob<ComponentType<{ selectedSeatCount: 0 | 1; onSeatSelectClick: () => void }>>(
+    '/src/pages/seat-selection/components/seat-selection-cta.tsx',
     { eager: true, import: 'default' },
   ),
 )
