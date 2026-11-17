@@ -2,8 +2,7 @@ import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg?react'
 import Button from '@/shared/components/button'
 
 interface SeatSelectionCtaProps {
-  onPreviewClick?: () => void
-  onSeatSelectClick?: () => void
+  onSeatSelectClick: () => void
   selectedSeatCount?: 0 | 1
 }
 
@@ -16,13 +15,13 @@ const SeatSelectionCta = ({ onSeatSelectClick, selectedSeatCount = 0 }: SeatSele
       className='flex w-full max-w-[375px] flex-col gap-[18px] bg-gray-0 p-4 shadow-[0_-2px_2px_rgba(0,0,0,0.08)]'
     >
       <header className='flex h-6 items-center justify-between'>
-        <p className='flex items-center gap-0.5 text-heading-16-b'>
+        <p className='flex items-center gap-0.5 text-heading-16-b text-gray-900'>
           <span className={hasSelectedSeat ? 'text-blue-500' : 'text-gray-300'}>
             {selectedSeatCount}
           </span>
-          <span className='text-gray-900'>/ 1석 선택</span>
+          <span>/</span>
+          <span>1석 선택</span>
         </p>
-
         <span className='flex h-6 items-center text-body-14-m text-blue-400'>
           열차 내 미리 보기(VR)
           <ChevronRightIcon
@@ -38,7 +37,7 @@ const SeatSelectionCta = ({ onSeatSelectClick, selectedSeatCount = 0 }: SeatSele
         onClick={onSeatSelectClick}
         width={343}
       >
-        {hasSelectedSeat ? '선택 완료' : '좌석 선택하기'}
+        좌석 선택완료
       </Button>
     </section>
   )
