@@ -2,6 +2,7 @@ import HomeExternalLinks from '@/pages/home/components/home-external-links'
 import TrainSearchCard from '@/pages/home/components/train-search-card'
 import ExampleCard from '@/pages/ui/example-card'
 import HomeShortcuts from '@/pages/home/components/home-shortcuts'
+import HomeFooter from '@/pages/home/components/home-footer'
 
 interface HomeExamplesProps {
   onAction: (action: string) => void
@@ -26,6 +27,10 @@ const HomeExamples = ({ onAction }: HomeExamplesProps) => {
         <div className='px-[14px]'>
           <HomeShortcuts />
         </div>
+      </ExampleCard>
+
+      <ExampleCard heading='h4' title='홈 안내 푸터' fullWidth>
+        <HomeFooter />
       </ExampleCard>
     </>
   )
