@@ -20,7 +20,7 @@ const buttonWidth = {
 
 const buttonVariant = {
   nextDayOutline:
-    'h-12 gap-[10px] whitespace-nowrap border border-slate-100 bg-gray-0 px-6 py-3 text-body-14-b text-gray-900',
+    'h-12 gap-[10px] whitespace-nowrap border border-gray-200 bg-gray-0 px-6 py-3 text-body-14-b text-gray-900',
   outline: 'h-11 border border-gray-200 bg-gray-0 px-8 py-3 text-body-14-b text-gray-900',
   outlinePill:
     'h-[42px] gap-[10px] border border-slate-200 bg-transparent px-[10px] py-3 text-label-12-r text-gray-700 transition-colors duration-300 ease-out active:bg-slate-200',
