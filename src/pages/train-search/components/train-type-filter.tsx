@@ -1,7 +1,7 @@
-import ItxCheongchunLogo from '@/shared/assets/logo-itx-cheongchun.png'
-import ItxSaemaeulLogo from '@/shared/assets/logo-itx-saemaeul.png'
-import KtxLogo from '@/shared/assets/logo-ktx.png'
-import MugunghwaLogo from '@/shared/assets/logo-mugunghwa.png'
+import ItxCheongchunLogo from '@/pages/train-search/assets/logo-itx-cheongchun.png'
+import ItxSaemaeulLogo from '@/pages/train-search/assets/logo-itx-saemaeul.png'
+import KtxLogo from '@/pages/train-search/assets/logo-ktx.png'
+import MugunghwaLogo from '@/pages/train-search/assets/logo-mugunghwa.png'
 
 const trainTypeOptions = [
   { value: 'mugunghwa', label: '무궁화', logo: MugunghwaLogo },
@@ -26,7 +26,7 @@ const TrainTypeFilter = ({ selectedTrainType, onTrainTypeChange }: TrainTypeFilt
     >
       <button
         aria-pressed={selectedTrainType === 'all'}
-        className={`flex h-[30px] shrink-0 items-center justify-center gap-[10px] rounded-full border border-slate-100 bg-slate-50 px-4 text-label-12-m ${selectedTrainType === 'all' ? 'text-gray-900' : 'text-gray-600'}`}
+        className={`flex h-[30px] shrink-0 items-center justify-center gap-[10px] rounded-full px-4 ${selectedTrainType === 'all' ? 'bg-gray-0 text-label-12-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]' : 'border border-slate-100 bg-slate-50 text-label-12-m text-gray-600'}`}
         type='button'
         onClick={() => onTrainTypeChange('all')}
       >
@@ -41,13 +41,13 @@ const TrainTypeFilter = ({ selectedTrainType, onTrainTypeChange }: TrainTypeFilt
             key={value}
             aria-label={`${label} 열차만 보기`}
             aria-pressed={isSelected}
-            className='shrink-0 rounded-full'
+            className={`flex h-[30px] shrink-0 items-center justify-center rounded-2xl px-3 ${isSelected ? 'bg-gray-0 shadow-[0_0_2px_rgba(0,0,0,0.08)]' : 'border border-slate-100 bg-slate-50'}`}
             type='button'
             onClick={() => onTrainTypeChange(value)}
           >
             <img
               alt=''
-              className={`h-[30px] w-auto max-w-none ${isSelected ? '' : 'grayscale'}`}
+              className={`h-3 w-auto max-w-none ${isSelected ? '' : 'grayscale'}`}
               src={logo}
             />
           </button>
