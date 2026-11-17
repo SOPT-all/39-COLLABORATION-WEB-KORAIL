@@ -7,6 +7,8 @@ import SeatGrid, { type Seat } from '@/pages/seat-selection/components/seat-grid
 import SeatSelectionCta from '@/pages/seat-selection/components/seat-selection-cta'
 import SeatSelectionHeader from '@/pages/seat-selection/components/seat-selection-header'
 import CarSelectionTrigger from '@/pages/seat-selection/components/car-selection-trigger'
+import SeatSelectionNoticeModal from '@/pages/seat-selection/components/seat-selection-notice-modal'
+import Button from '@/shared/components/button'
 
 import ExampleCard from '../example-card'
 
@@ -63,6 +65,7 @@ const exampleSeats = Array.from({ length: 14 }, (_, rowIndex) =>
 const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => void }) => {
   const [isCarSheetOpen, setIsCarSheetOpen] = useState(false)
   const [selectedSeatId, setSelectedSeatId] = useState<number | null>(null)
+  const [isNoticeOpen, setIsNoticeOpen] = useState(false)
 
   return (
     <>
@@ -103,6 +106,13 @@ const SeatSelectionExamples = ({ onAction }: { onAction: (action: string) => voi
             onAction(`일반실 ${firstCoach.coachNumber}호차 선택`)
           }}
         />
+      </ExampleCard>
+
+      <ExampleCard heading='h4' title='좌석 선택 안내 모달'>
+        <Button className='mx-auto max-w-full' onClick={() => setIsNoticeOpen(true)}>
+          안내 모달 열기
+        </Button>
+        <SeatSelectionNoticeModal open={isNoticeOpen} onClose={() => setIsNoticeOpen(false)} />
       </ExampleCard>
 
       <ExampleCard heading='h4' title='좌석 선택 하단 액션 · 미선택' fullWidth>
