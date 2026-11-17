@@ -1,8 +1,48 @@
-import KtxLogo from '@/shared/assets/logo-card-ktx.png'
+import ItxCheongchunLogo from '@/pages/train-search/assets/logo-itx-cheongchun.png'
+import ItxSaemaeulLogo from '@/pages/train-search/assets/logo-itx-saemaeul.png'
+import KtxLogo from '@/pages/train-search/assets/logo-ktx.png'
+import MugunghwaLogo from '@/pages/train-search/assets/logo-mugunghwa.png'
 import Button from '@/shared/components/button'
 import TrainTimeRow from '@/shared/components/train-time-row'
 
+type TrainType = 'itx-cheongchun' | 'itx-saemaeul' | 'ktx' | 'mugunghwa'
+
+interface TrainAppearance {
+  label: string
+  logo: string
+  logoWidth: number
+  borderClassName: string
+}
+
+const trainAppearance: Record<TrainType, TrainAppearance> = {
+  ktx: {
+    label: 'KTX',
+    logo: KtxLogo,
+    logoWidth: 36,
+    borderClassName: 'border-blue-500',
+  },
+  'itx-cheongchun': {
+    label: 'ITX-청춘',
+    logo: ItxCheongchunLogo,
+    logoWidth: 37,
+    borderClassName: 'border-gray-900',
+  },
+  'itx-saemaeul': {
+    label: 'ITX-새마을',
+    logo: ItxSaemaeulLogo,
+    logoWidth: 49,
+    borderClassName: 'border-red-450',
+  },
+  mugunghwa: {
+    label: '무궁화',
+    logo: MugunghwaLogo,
+    logoWidth: 35,
+    borderClassName: 'border-green-450',
+  },
+}
+
 interface ReservationCardProps {
+  trainType: TrainType
   trainNumber: string
   departureTime: string
   departureStation: string
@@ -17,6 +57,7 @@ interface ReservationCardProps {
 }
 
 const ReservationCard = ({
+  trainType,
   trainNumber,
   departureTime,
   departureStation,
@@ -29,14 +70,16 @@ const ReservationCard = ({
   onCancelClick,
   onCartClick,
 }: ReservationCardProps) => {
+  const { label, logo, logoWidth, borderClassName } = trainAppearance[trainType]
+
   return (
     <article
-      aria-label={`KTX ${trainNumber} 열차 예약`}
-      className='flex w-full flex-col gap-3 rounded-12 border-l-4 border-blue-500 bg-gray-0 py-2 pr-2 pl-3 shadow-[0_0_2px_rgba(0,0,0,0.08)]'
+      aria-label={`${label} ${trainNumber} 열차 예약`}
+      className={`flex w-full flex-col gap-3 rounded-12 border-l-4 bg-gray-0 py-2 pr-2 pl-3 shadow-[0_0_2px_rgba(0,0,0,0.08)] ${borderClassName}`}
     >
       <div className='flex w-full flex-col gap-2'>
         <div className='flex h-[18px] items-center gap-2'>
-          <img alt='KTX' className='block shrink-0' height={12} src={KtxLogo} width={36} />
+          <img alt={label} className='block shrink-0' height={12} src={logo} width={logoWidth} />
           <span className='shrink-0 rounded-full bg-slate-50 px-2.5 py-0.5 text-caption-10-m text-gray-600'>
             {trainNumber}
           </span>
