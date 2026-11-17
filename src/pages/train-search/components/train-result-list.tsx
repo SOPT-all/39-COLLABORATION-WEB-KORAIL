@@ -1,4 +1,5 @@
 import type { TrainResult } from '@/pages/train-search/types/train-result'
+import EmptyTrainResult from '@/pages/train-search/components/empty-train-result'
 import TrainResultCard from '@/pages/train-search/components/train-result-card'
 
 interface TrainResultListProps {
@@ -8,14 +9,7 @@ interface TrainResultListProps {
 
 const TrainResultList = ({ trains, onTrainSelect }: TrainResultListProps) => {
   if (trains.length === 0) {
-    return (
-      <p
-        role='status'
-        className='flex h-[92px] w-full max-w-[343px] items-end justify-center text-body-14-r whitespace-nowrap text-gray-600'
-      >
-        조회된 열차가 없습니다.
-      </p>
-    )
+    return <EmptyTrainResult />
   }
 
   return (
