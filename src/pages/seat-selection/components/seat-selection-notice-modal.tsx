@@ -28,6 +28,7 @@ const SeatSelectionNoticeModal = ({ open, onClose }: SeatSelectionNoticeModalPro
       ref={dialogRef}
       data-seat-selection-notice
       aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       onCancel={(event) => {
         event.preventDefault()
         onClose()
