@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import { useState, type ComponentType } from 'react'
 
 import ExampleCard from '../example-card'
 
@@ -20,14 +20,49 @@ const [NextDaySearchButton] = Object.values(
     { eager: true, import: 'default' },
   ),
 )
+const [EmptyTrainResult] = Object.values(
+  import.meta.glob<ComponentType>('/src/pages/train-search/components/empty-train-result.tsx', {
+    eager: true,
+    import: 'default',
+  }),
+)
+
+type TrainType = 'all' | 'itx-cheongchun' | 'itx-saemaeul' | 'ktx' | 'mugunghwa'
+
+const [TrainTypeFilter] = Object.values(
+  import.meta.glob<
+    ComponentType<{
+      selectedTrainType: TrainType
+      onTrainTypeChange: (trainType: TrainType) => void
+    }>
+  >('/src/pages/train-search/components/train-type-filter.tsx', {
+    eager: true,
+    import: 'default',
+  }),
+)
 
 const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void }) => {
-  if (!TrainDetailActionButtons && !NextDaySearchButton) {
+  const [selectedTrainType, setSelectedTrainType] = useState<TrainType>('mugunghwa')
+
+  if (!TrainDetailActionButtons && !NextDaySearchButton && !EmptyTrainResult && !TrainTypeFilter) {
     return <p className='text-body-14-r text-gray-600'>등록된 예시가 없어요.</p>
+  }
+
+  const handleTrainTypeChange = (trainType: TrainType) => {
+    setSelectedTrainType(trainType)
+    onAction(`열차 종류 필터 · ${trainType}`)
   }
 
   return (
     <>
+      {TrainTypeFilter && (
+        <ExampleCard heading='h4' title='열차 종류 필터' fullWidth>
+          <TrainTypeFilter
+            selectedTrainType={selectedTrainType}
+            onTrainTypeChange={handleTrainTypeChange}
+          />
+        </ExampleCard>
+      )}
       {TrainDetailActionButtons && (
         <ExampleCard heading='h4' title='열차 상세 액션'>
           <div className='space-y-3'>
@@ -49,6 +84,11 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
             nextDateLabel='10.27 (화)'
             onClick={() => onAction('다음날 열차 조회')}
           />
+        </ExampleCard>
+      )}
+      {EmptyTrainResult && (
+        <ExampleCard heading='h4' title='열차 조회 빈 결과 안내'>
+          <EmptyTrainResult />
         </ExampleCard>
       )}
     </>
