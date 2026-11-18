@@ -9,7 +9,7 @@ const legendItems = [
 const SeatLegend = () => (
   <ul
     aria-label='좌석 범례'
-    className='flex h-[49px] items-center justify-center gap-2 rounded-12 bg-gray-0 shadow-[0_0_2px_#00000014]'
+    className='flex h-[49px] items-center justify-center gap-2 rounded-12 bg-gray-0 shadow-[0_0_1px_#00000014]'
   >
     {legendItems.map(({ label, iconClassName }) => (
       <li key={label} className='flex items-center gap-1 text-label-12-r whitespace-nowrap'>
