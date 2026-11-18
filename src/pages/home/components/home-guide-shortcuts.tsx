@@ -24,7 +24,11 @@ const HomeGuideShortcuts = () => {
               <span className='text-label-12-m whitespace-nowrap text-gray-900'>{label}</span>
             </div>
 
-            <ChevronRightIcon aria-hidden='true' focusable='false' className='shrink-0' />
+            <ChevronRightIcon
+              aria-hidden='true'
+              focusable='false'
+              className='shrink-0 [&_path]:stroke-slate-900'
+            />
           </li>
         ))}
       </ul>
