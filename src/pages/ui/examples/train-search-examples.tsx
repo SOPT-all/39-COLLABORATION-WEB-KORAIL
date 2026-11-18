@@ -2,6 +2,7 @@ import { useState, type ButtonHTMLAttributes, type ComponentType } from 'react'
 
 import type { TrainDetailInfo, TrainFareOption } from '@/pages/train-search/types/train-detail'
 import type { TrainResult, TrainType } from '@/pages/train-search/types/train-result'
+import type { TrainSearchCondition } from '@/pages/train-search/types/train-search-condition'
 
 import ExampleCard from '../example-card'
 
@@ -22,6 +23,17 @@ const [NextDaySearchButton] = Object.values(
     '/src/pages/train-search/components/next-day-search-button.tsx',
     { eager: true, import: 'default' },
   ),
+)
+const [TrainSearchForm] = Object.values(
+  import.meta.glob<
+    ComponentType<{
+      condition: TrainSearchCondition
+      onSubmit: () => void
+    }>
+  >('/src/pages/train-search/components/train-search-form.tsx', {
+    eager: true,
+    import: 'default',
+  }),
 )
 const [Button] = Object.values(
   import.meta.glob<ComponentType<ButtonHTMLAttributes<HTMLButtonElement> & { width?: 343 }>>(
@@ -120,6 +132,18 @@ const standardFareOption: TrainFareOption = {
   price: 78400,
 }
 
+const initialCondition: TrainSearchCondition = {
+  tripType: 'round-trip',
+  dateLabel: '10.26 (월)',
+  timeLabel: '01:00 이후',
+  departureStation: '서울',
+  arrivalStation: '부산',
+  seatGradeLabel: '전체',
+  passengerLabel: '어른 1명',
+  isSeoulAreaIncluded: false,
+  isAdjacentStationIncluded: false,
+}
+
 const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void }) => {
   const [selectedTrainType, setSelectedTrainType] = useState<TrainFilterType>('mugunghwa')
   const [isTrainDetailOpen, setIsTrainDetailOpen] = useState(false)
@@ -127,6 +151,7 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
   if (
     !TrainDetailActionButtons &&
     !NextDaySearchButton &&
+    !TrainSearchForm &&
     !TrainDetailSheet &&
     !EmptyTrainResult &&
     !TrainTypeFilter &&
@@ -142,6 +167,11 @@ const TrainSearchExamples = ({ onAction }: { onAction: (action: string) => void 
 
   return (
     <>
+      {TrainSearchForm && (
+        <ExampleCard heading='h4' title='열차 조회 조건'>
+          <TrainSearchForm condition={initialCondition} onSubmit={() => onAction('열차 조회')} />
+        </ExampleCard>
+      )}
       {TrainTypeFilter && (
         <ExampleCard heading='h4' title='열차 종류 필터' fullWidth>
           <TrainTypeFilter
