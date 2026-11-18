@@ -10,7 +10,10 @@ import TrainTypeFilter, {
 } from '@/pages/train-search/components/train-type-filter'
 import type { TrainDetailInfo, TrainFareOption } from '@/pages/train-search/types/train-detail'
 import type { TrainResult } from '@/pages/train-search/types/train-result'
-import type { TrainSearchCondition } from '@/pages/train-search/types/train-search-condition'
+import type {
+  TrainSearchCondition,
+  TripType,
+} from '@/pages/train-search/types/train-search-condition'
 
 const initialSearchCondition: TrainSearchCondition = {
   tripType: 'round-trip',
@@ -104,6 +107,11 @@ const TrainSearchPage = () => {
     setSelectedTrain(null)
   }
 
+  const handleTripTypeChange = (tripType: TripType) => {
+    setSearchCondition((condition) => ({ ...condition, tripType }))
+    setSelectedTrain(null)
+  }
+
   const handleTrainTypeChange = (trainType: TrainFilterType) => {
     setSelectedTrainType(trainType)
     setSelectedTrain(null)
@@ -135,7 +143,11 @@ const TrainSearchPage = () => {
 
       <div className='mx-auto flex min-h-[calc(100dvh-60px)] w-full max-w-[343px] flex-col'>
         <div className='flex flex-col gap-4 pb-6'>
-          <TrainSearchForm condition={searchCondition} onSubmit={handleSearchSubmit} />
+          <TrainSearchForm
+            condition={searchCondition}
+            onSubmit={handleSearchSubmit}
+            onTripTypeChange={handleTripTypeChange}
+          />
 
           <TrainTypeFilter
             selectedTrainType={selectedTrainType}
