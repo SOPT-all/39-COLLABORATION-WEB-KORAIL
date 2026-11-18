@@ -111,7 +111,7 @@ const SeatSelectionPage = () => {
       <div className='shrink-0'>
         <SeatSelectionCta
           selectedSeatCount={selectedSeatId === null ? 0 : 1}
-          onSeatSelectClick={() => undefined}
+          onSeatSelectClick={() => navigate('/reservation-confirmation')}
         />
       </div>
 
