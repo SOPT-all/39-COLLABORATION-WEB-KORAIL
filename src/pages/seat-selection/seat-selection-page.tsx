@@ -1,15 +1,21 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useQuery } from '@tanstack/react-query'
+import { useNavigate, useParams } from 'react-router'
 
+import { getSeatLayout } from './api/get-seat-layout'
 import CarSelectionSheet, { type CoachOption } from './components/car-selection-sheet'
 import CarSelectionTrigger from './components/car-selection-trigger'
-import SeatGrid, { type Seat } from './components/seat-grid'
+import SeatGrid from './components/seat-grid'
 import SeatSelectionCta from './components/seat-selection-cta'
 import SeatSelectionHeader from './components/seat-selection-header'
 import SeatSelectionNoticeModal from './components/seat-selection-notice-modal'
 
 const departureStation = '서울'
 const arrivalStation = '부산'
+
+// 호차 조회 연결 전 테스트용 ID
+// /seat-selection/13에서 확인 가능
+const TEMP_COACH_ID = 1
 
 const previewCoaches: CoachOption[] = [17, 6, 0, 13, 5, 0, 0, 3, 0].map(
   (remainingSeatCount, index) => ({
@@ -22,62 +28,60 @@ const previewCoaches: CoachOption[] = [17, 6, 0, 13, 5, 0, 0, 3, 0].map(
   }),
 )
 
-const [firstCoach] = previewCoaches
-const columns = ['A', 'B', 'C', 'D'] as const
-
-const availableSeatNumbers = new Set([
-  '1A',
-  '1C',
-  '2B',
-  '2C',
-  '2D',
-  '3B',
-  '3C',
-  '6A',
-  '6B',
-  '6C',
-  '6D',
-  '7C',
-  '7D',
-  '8B',
-  '8D',
-  '13B',
-  '14C',
-])
-
-const previewSeats = Array.from({ length: 14 }, (_, rowIndex) =>
-  columns.map((column, columnIndex): Seat => {
-    const row = rowIndex + 1
-    const seatNumber = `${row}${column}`
-
-    return {
-      seatId: rowIndex * columns.length + columnIndex + 1,
-      seatNumber,
-      row,
-      column,
-      direction: row <= 8 ? 'BACKWARD' : 'FORWARD',
-      available: availableSeatNumbers.has(seatNumber),
-    }
-  }),
-).flat()
-
-const SeatSelectionPage = () => {
+const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
   const navigate = useNavigate()
 
   const [isCarSheetOpen, setIsCarSheetOpen] = useState(false)
   const [isNoticeOpen, setIsNoticeOpen] = useState(false)
   const [selectedSeatId, setSelectedSeatId] = useState<number | null>(null)
 
-  const closeCarSheet = () => setIsCarSheetOpen(false)
+  const {
+    data: seatLayout,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ['seats', scheduleId, TEMP_COACH_ID],
+    queryFn: () => getSeatLayout(scheduleId, TEMP_COACH_ID),
+    staleTime: 0,
+  })
+
+  const selectedSeat = seatLayout?.seats.find(
+    (seat) => seat.seatId === selectedSeatId && seat.available,
+  )
 
   const handleSeatChange = (nextSeatId: number | null) => {
-    if (selectedSeatId !== null && nextSeatId !== null) {
+    if (selectedSeat && nextSeatId !== null) {
       setIsNoticeOpen(true)
       return
     }
 
     setSelectedSeatId(nextSeatId)
   }
+
+  if (isError) {
+    return <p className='p-4'>좌석 정보를 불러오지 못했습니다.</p>
+  }
+
+  if (isPending || !seatLayout) {
+    return (
+      <p className='p-4' role='status'>
+        좌석 정보를 불러오는 중입니다.
+      </p>
+    )
+  }
+
+  // 호차 조회 연결 전까지 1호차에만 실제 좌석 응답을 반영
+  const coaches = previewCoaches.map((coach) =>
+    coach.coachNumber === seatLayout.coachNumber
+      ? {
+          ...coach,
+          coachId: seatLayout.coachId,
+          remainingSeatCount: seatLayout.remainingSeatCount,
+          totalSeatCount: seatLayout.totalSeatCount,
+          reservable: seatLayout.remainingSeatCount > 0,
+        }
+      : coach,
+  )
 
   return (
     <main className='flex h-dvh flex-col overflow-hidden bg-slate-50'>
@@ -91,17 +95,17 @@ const SeatSelectionPage = () => {
         />
 
         <CarSelectionTrigger
-          coachNumber={firstCoach.coachNumber}
-          remainingSeatCount={firstCoach.remainingSeatCount}
-          totalSeatCount={firstCoach.totalSeatCount}
+          coachNumber={seatLayout.coachNumber}
+          remainingSeatCount={seatLayout.remainingSeatCount}
+          totalSeatCount={seatLayout.totalSeatCount}
           onClick={() => setIsCarSheetOpen(true)}
         />
       </div>
 
       <div className='min-h-0 flex-1 overflow-y-auto overscroll-contain py-5'>
         <SeatGrid
-          seats={previewSeats}
-          selectedSeatId={selectedSeatId}
+          seats={seatLayout.seats}
+          selectedSeatId={selectedSeat?.seatId ?? null}
           departureStation={departureStation}
           arrivalStation={arrivalStation}
           onSeatChange={handleSeatChange}
@@ -110,21 +114,32 @@ const SeatSelectionPage = () => {
 
       <div className='shrink-0'>
         <SeatSelectionCta
-          selectedSeatCount={selectedSeatId === null ? 0 : 1}
+          selectedSeatCount={selectedSeat ? 1 : 0}
           onSeatSelectClick={() => navigate('/reservation-confirmation')}
         />
       </div>
 
       <CarSelectionSheet
         open={isCarSheetOpen}
-        onClose={closeCarSheet}
-        coaches={previewCoaches}
-        onSelectCoach={closeCarSheet}
+        onClose={() => setIsCarSheetOpen(false)}
+        coaches={coaches}
+        onSelectCoach={() => setIsCarSheetOpen(false)}
       />
 
       <SeatSelectionNoticeModal open={isNoticeOpen} onClose={() => setIsNoticeOpen(false)} />
     </main>
   )
+}
+
+const SeatSelectionPage = () => {
+  const { trainRunId } = useParams()
+  const scheduleId = Number(trainRunId)
+
+  if (!Number.isSafeInteger(scheduleId) || scheduleId <= 0) {
+    return <p className='p-4'>올바른 운행 일정 주소가 아닙니다.</p>
+  }
+
+  return <SeatSelectionContent key={scheduleId} scheduleId={scheduleId} />
 }
 
 export default SeatSelectionPage
