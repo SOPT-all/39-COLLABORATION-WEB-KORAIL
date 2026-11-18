@@ -1,13 +1,10 @@
-import ItxCheongchunLogo from '@/pages/train-search/assets/logo-itx-cheongchun.png'
-import ItxSaemaeulLogo from '@/pages/train-search/assets/logo-itx-saemaeul.png'
-import KtxLogo from '@/pages/train-search/assets/logo-ktx.png'
-import MugunghwaLogo from '@/pages/train-search/assets/logo-mugunghwa.png'
+import TrainLogo from '@/pages/train-search/components/train-logo'
 
 const trainTypeOptions = [
-  { value: 'mugunghwa', label: '무궁화', logo: MugunghwaLogo },
-  { value: 'ktx', label: 'KTX', logo: KtxLogo },
-  { value: 'itx-cheongchun', label: 'ITX-청춘', logo: ItxCheongchunLogo },
-  { value: 'itx-saemaeul', label: 'ITX-새마을', logo: ItxSaemaeulLogo },
+  { value: 'mugunghwa', label: '무궁화' },
+  { value: 'ktx', label: 'KTX' },
+  { value: 'itx-cheongchun', label: 'ITX-청춘' },
+  { value: 'itx-saemaeul', label: 'ITX-새마을' },
 ] as const
 
 export type TrainType = 'all' | (typeof trainTypeOptions)[number]['value']
@@ -33,7 +30,7 @@ const TrainTypeFilter = ({ selectedTrainType, onTrainTypeChange }: TrainTypeFilt
         전체
       </button>
 
-      {trainTypeOptions.map(({ value, label, logo }) => {
+      {trainTypeOptions.map(({ value, label }) => {
         const isSelected = selectedTrainType === value
 
         return (
@@ -41,15 +38,11 @@ const TrainTypeFilter = ({ selectedTrainType, onTrainTypeChange }: TrainTypeFilt
             key={value}
             aria-label={`${label} 열차만 보기`}
             aria-pressed={isSelected}
-            className={`flex h-[30px] shrink-0 items-center justify-center rounded-2xl px-3 ${isSelected ? 'bg-gray-0 shadow-[0_0_2px_rgba(0,0,0,0.08)]' : 'border border-slate-100 bg-slate-50'}`}
+            className={`flex h-7 shrink-0 items-center justify-center rounded-2xl px-3 ${isSelected ? 'bg-gray-0 shadow-[0_0_2px_rgba(0,0,0,0.08)]' : 'border border-slate-100 bg-slate-50'}`}
             type='button'
             onClick={() => onTrainTypeChange(value)}
           >
-            <img
-              alt=''
-              className={`h-3 w-auto max-w-none ${isSelected ? '' : 'grayscale'}`}
-              src={logo}
-            />
+            <TrainLogo isMuted={!isSelected} trainType={value} variant='filter' />
           </button>
         )
       })}
