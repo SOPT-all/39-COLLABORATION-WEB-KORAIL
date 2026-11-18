@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router'
 
 import HomeExternalLinks from '@/pages/home/components/home-external-links'
 import TrainSearchCard from '@/pages/home/components/train-search-card'
+import HomeShortcuts from '@/pages/home/components/home-shortcuts'
 
 const HomePage = () => {
   const navigate = useNavigate()
@@ -11,12 +12,19 @@ const HomePage = () => {
   }
 
   return (
-    <main className='bg-slate-50 p-4'>
+    <main className='bg-slate-50 px-[14px] pt-[17px] pb-4'>
       <h1 className='sr-only'>승차권 예매 홈</h1>
 
-      <div className='flex flex-col gap-2'>
-        <HomeExternalLinks />
-        <TrainSearchCard onSearch={handleTrainSearch} />
+      <div className='flex w-full max-w-[344px] flex-col gap-6'>
+        <div className='flex flex-col gap-2'>
+          <HomeExternalLinks />
+
+          <div className='w-full max-w-[343px]'>
+            <TrainSearchCard onSearch={handleTrainSearch} />
+          </div>
+        </div>
+
+        <HomeShortcuts />
       </div>
     </main>
   )
