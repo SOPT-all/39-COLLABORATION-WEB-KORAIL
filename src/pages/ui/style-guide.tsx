@@ -139,7 +139,7 @@ const UiPage = () => {
         </h2>
         <div className='space-y-4'>
           <h3 className='text-body-14-b'>홈</h3>
-          <HomeExamples />
+          <HomeExamples onAction={setLastAction} />
         </div>
         <div className='space-y-4'>
           <h3 className='text-body-14-b'>열차 조회</h3>
@@ -151,7 +151,7 @@ const UiPage = () => {
         </div>
         <div className='space-y-4'>
           <h3 className='text-body-14-b'>결제 대기</h3>
-          <ReservationConfirmationExamples />
+          <ReservationConfirmationExamples onAction={setLastAction} />
         </div>
         <p role='status' className='text-body-14-r text-gray-700'>
           {lastAction

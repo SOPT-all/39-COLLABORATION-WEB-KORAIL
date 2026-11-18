@@ -5,6 +5,12 @@ interface TrainTimeRowProps {
   arrivalStation: string
   duration: string
   stopStation?: string
+  stopStationWeight?: 'medium' | 'regular'
+}
+
+const stopStationTextStyle = {
+  medium: 'text-caption-10-m',
+  regular: 'text-caption-10-r',
 }
 
 const TrainTimeRow = ({
@@ -14,6 +20,7 @@ const TrainTimeRow = ({
   arrivalStation,
   duration,
   stopStation,
+  stopStationWeight = 'medium',
 }: TrainTimeRowProps) => {
   return (
     <div className='flex w-full items-center justify-between px-2'>
@@ -31,7 +38,9 @@ const TrainTimeRow = ({
         </div>
         <div className='flex h-[18px] max-w-full items-center'>
           {stopStation && (
-            <span className='max-w-full truncate rounded-full bg-slate-100 px-2.5 py-0.5 text-caption-10-m text-gray-600'>
+            <span
+              className={`max-w-full truncate rounded-full bg-slate-100 px-2.5 py-0.5 text-gray-600 ${stopStationTextStyle[stopStationWeight]}`}
+            >
               {stopStation}
             </span>
           )}
