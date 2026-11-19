@@ -4,9 +4,14 @@ import Button from '@/shared/components/button'
 interface SeatSelectionCtaProps {
   onSeatSelectClick: () => void
   selectedSeatCount?: 0 | 1
+  isPending?: boolean
 }
 
-const SeatSelectionCta = ({ onSeatSelectClick, selectedSeatCount = 0 }: SeatSelectionCtaProps) => {
+const SeatSelectionCta = ({
+  onSeatSelectClick,
+  selectedSeatCount = 0,
+  isPending = false,
+}: SeatSelectionCtaProps) => {
   const hasSelectedSeat = selectedSeatCount === 1
 
   return (
@@ -22,6 +27,7 @@ const SeatSelectionCta = ({ onSeatSelectClick, selectedSeatCount = 0 }: SeatSele
           <span>/</span>
           <span>1석 선택</span>
         </p>
+
         <span className='flex h-6 items-center text-body-14-m text-blue-400'>
           열차 내 미리 보기(VR)
           <ChevronRightIcon
@@ -32,8 +38,9 @@ const SeatSelectionCta = ({ onSeatSelectClick, selectedSeatCount = 0 }: SeatSele
       </header>
 
       <Button
+        aria-busy={isPending}
         className='max-w-full'
-        disabled={!hasSelectedSeat}
+        disabled={!hasSelectedSeat || isPending}
         onClick={onSeatSelectClick}
         width={343}
       >
