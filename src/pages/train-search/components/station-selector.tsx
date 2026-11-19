@@ -3,9 +3,10 @@ import SwapIcon from '@/shared/assets/icon-swap.svg'
 interface StationSelectorProps {
   departureStation: string
   arrivalStation: string
+  onSwap?: () => void
 }
 
-const StationSelector = ({ departureStation, arrivalStation }: StationSelectorProps) => {
+const StationSelector = ({ departureStation, arrivalStation, onSwap }: StationSelectorProps) => {
   return (
     <div className='grid w-full grid-cols-[minmax(0,1fr)_24px_minmax(0,1fr)] items-center'>
       <div
@@ -18,9 +19,14 @@ const StationSelector = ({ departureStation, arrivalStation }: StationSelectorPr
         </strong>
       </div>
 
-      <span aria-hidden='true' className='relative size-6'>
+      <button
+        aria-label='출발역과 도착역 교환'
+        className='relative size-6'
+        onClick={onSwap}
+        type='button'
+      >
         <img alt='' aria-hidden='true' height={24} src={SwapIcon} width={24} />
-      </span>
+      </button>
 
       <div
         aria-label={`도착역 ${arrivalStation}`}

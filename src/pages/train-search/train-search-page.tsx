@@ -112,6 +112,29 @@ const TrainSearchPage = () => {
     setSelectedTrain(null)
   }
 
+  const handleStationSwap = () => {
+    setSearchCondition((condition) => ({
+      ...condition,
+      departureStation: condition.arrivalStation,
+      arrivalStation: condition.departureStation,
+    }))
+    setSelectedTrain(null)
+  }
+
+  const handleSeoulAreaChange = (checked: boolean) => {
+    setSearchCondition((condition) => ({
+      ...condition,
+      isSeoulAreaIncluded: checked,
+    }))
+  }
+
+  const handleAdjacentStationChange = (checked: boolean) => {
+    setSearchCondition((condition) => ({
+      ...condition,
+      isAdjacentStationIncluded: checked,
+    }))
+  }
+
   const handleTrainTypeChange = (trainType: TrainFilterType) => {
     setSelectedTrainType(trainType)
     setSelectedTrain(null)
@@ -147,6 +170,9 @@ const TrainSearchPage = () => {
             condition={searchCondition}
             onSubmit={handleSearchSubmit}
             onTripTypeChange={handleTripTypeChange}
+            onStationSwap={handleStationSwap}
+            onSeoulAreaChange={handleSeoulAreaChange}
+            onAdjacentStationChange={handleAdjacentStationChange}
           />
 
           <TrainTypeFilter

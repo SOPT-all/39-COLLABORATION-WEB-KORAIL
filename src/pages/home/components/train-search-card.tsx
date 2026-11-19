@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import SwapIcon from '@/shared/assets/icon-swap.svg?react'
 import Button from '@/shared/components/button'
 
@@ -6,24 +8,41 @@ interface TrainSearchCardProps {
 }
 
 const TrainSearchCard = ({ onSearch }: TrainSearchCardProps) => {
+  const [stations, setStations] = useState({
+    departure: '서울',
+    arrival: '부산',
+  })
+
+  const handleStationSwap = () => {
+    setStations(({ departure, arrival }) => ({
+      departure: arrival,
+      arrival: departure,
+    }))
+  }
+
   return (
     <section
       aria-label='열차 조회 조건'
       className='flex w-full flex-col gap-4 rounded-12 bg-gray-0 p-4 shadow-[0_0_2px_0_rgba(0,0,0,0.08)]'
     >
       <div className='grid grid-cols-[1fr_24px_1fr] items-center gap-2'>
-        {/* 바깥 div에 grid를 적용 -> 바로 안쪽에 있는 세 요소를 칸에 배치 */}
-        {/* grid-cols-[1fr_24px_1fr] -> 첫 칸(1fr) 두번째 칸(24px) 세번째 칸(1fr) */}
         <div className='flex flex-col gap-2'>
           <span className='text-label-12-r text-gray-600'>출발</span>
-          <span className='text-subtitle-20-b text-gray-900'>서울</span>
+          <span className='text-subtitle-20-b text-gray-900'>{stations.departure}</span>
         </div>
 
-        <SwapIcon aria-hidden='true' focusable='false' />
+        <button
+          aria-label='출발역과 도착역 교환'
+          className='size-6'
+          onClick={handleStationSwap}
+          type='button'
+        >
+          <SwapIcon aria-hidden='true' focusable='false' />
+        </button>
 
         <div className='flex flex-col gap-2 text-right'>
           <span className='text-label-12-r text-gray-600'>도착</span>
-          <span className='text-subtitle-20-b text-gray-900'>부산</span>
+          <span className='text-subtitle-20-b text-gray-900'>{stations.arrival}</span>
         </div>
       </div>
 
