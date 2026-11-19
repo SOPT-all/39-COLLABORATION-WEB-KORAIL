@@ -38,7 +38,7 @@ const SeatGrid = ({
     <section aria-label='좌석 배치' className='mx-auto w-full max-w-[375px] px-4'>
       <SeatLegend />
 
-      <div className='mt-2 rounded-12 bg-gray-0 py-[34px] shadow-[0_0_1px_#00000014]'>
+      <div className='mt-2 rounded-12 bg-gray-0 py-[34px] shadow-[0_0_2px_#00000014]'>
         <div className='mx-auto flex w-[270px] flex-col gap-[52px]'>
           {rowGroups.map((group, groupIndex) => {
             const firstGroup = groupIndex === 0
