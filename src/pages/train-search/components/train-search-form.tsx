@@ -13,6 +13,9 @@ interface TrainSearchFormProps {
   condition: TrainSearchCondition
   onSubmit: () => void
   onTripTypeChange: (tripType: TripType) => void
+  onStationSwap?: () => void
+  onSeoulAreaChange?: (checked: boolean) => void
+  onAdjacentStationChange?: (checked: boolean) => void
 }
 
 interface ConditionFieldProps {
@@ -23,6 +26,7 @@ interface ConditionFieldProps {
 interface StationOptionProps {
   label: string
   isChecked: boolean
+  onChange?: (checked: boolean) => void
 }
 
 const ConditionField = ({ label, value }: ConditionFieldProps) => {
@@ -36,25 +40,39 @@ const ConditionField = ({ label, value }: ConditionFieldProps) => {
   )
 }
 
-const StationOption = ({ label, isChecked }: StationOptionProps) => {
+const StationOption = ({ label, isChecked, onChange }: StationOptionProps) => {
   return (
-    <div className='flex h-5 items-center gap-1'>
-      <span className='flex size-5 shrink-0 items-center justify-center'>
+    <label className='flex h-5 cursor-pointer items-center gap-1'>
+      <span className='relative flex size-5 shrink-0 items-center justify-center'>
+        <input
+          checked={isChecked}
+          className='peer sr-only'
+          onChange={(event) => onChange?.(event.target.checked)}
+          type='checkbox'
+        />
         <span
           aria-hidden='true'
-          className={`relative size-3.5 rounded-[2px] border-[1.154px] ${
+          className={`relative size-3.5 rounded-[2px] border-[1.154px] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-500 ${
             isChecked
               ? "border-blue-500 bg-blue-500 after:absolute after:top-[1px] after:left-[4px] after:h-[7px] after:w-[4px] after:rotate-45 after:border-r-[1.5px] after:border-b-[1.5px] after:border-gray-0 after:content-['']"
               : 'border-slate-300 bg-gray-0'
           }`}
         />
       </span>
+
       <span className='text-caption-10-r whitespace-nowrap text-gray-700'>{label}</span>
-    </div>
+    </label>
   )
 }
 
-const TrainSearchForm = ({ condition, onSubmit, onTripTypeChange }: TrainSearchFormProps) => {
+const TrainSearchForm = ({
+  condition,
+  onSubmit,
+  onTripTypeChange,
+  onStationSwap,
+  onSeoulAreaChange,
+  onAdjacentStationChange,
+}: TrainSearchFormProps) => {
   const {
     tripType,
     dateLabel,
@@ -82,7 +100,11 @@ const TrainSearchForm = ({ condition, onSubmit, onTripTypeChange }: TrainSearchF
 
       <div className='flex w-full flex-col gap-2'>
         <TravelDatePicker dateLabel={dateLabel} timeLabel={timeLabel} />
-        <StationSelector departureStation={departureStation} arrivalStation={arrivalStation} />
+        <StationSelector
+          departureStation={departureStation}
+          arrivalStation={arrivalStation}
+          onSwap={onStationSwap}
+        />
       </div>
 
       <div className='flex w-full items-center gap-[9px]'>
@@ -91,8 +113,16 @@ const TrainSearchForm = ({ condition, onSubmit, onTripTypeChange }: TrainSearchF
       </div>
 
       <div className='flex w-full flex-col items-start'>
-        <StationOption label='서울·용산·수서 함께 보기' isChecked={isSeoulAreaIncluded} />
-        <StationOption label='인접역 포함하기' isChecked={isAdjacentStationIncluded} />
+        <StationOption
+          label='서울·용산·수서 함께 보기'
+          isChecked={isSeoulAreaIncluded}
+          onChange={onSeoulAreaChange}
+        />
+        <StationOption
+          label='인접역 포함하기'
+          isChecked={isAdjacentStationIncluded}
+          onChange={onAdjacentStationChange}
+        />
       </div>
 
       <Button type='submit' className='max-w-full' variant='primary' width={311}>

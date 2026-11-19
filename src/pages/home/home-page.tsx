@@ -17,11 +17,11 @@ const HomePage = () => {
       <main className='bg-slate-50 px-[14px] pt-[17px] pb-[177px]'>
         <h1 className='sr-only'>승차권 예매 홈</h1>
 
-        <div className='flex w-full max-w-[344px] flex-col gap-6'>
+        <div className='mx-auto flex w-full max-w-[344px] flex-col gap-6'>
           <div className='flex flex-col gap-2'>
             <HomeExternalLinks />
 
-            <div className='w-full max-w-[343px]'>
+            <div className='mx-auto w-full max-w-[343px]'>
               <TrainSearchCard onSearch={handleTrainSearch} />
             </div>
           </div>
