@@ -3,7 +3,7 @@ import KorailLogo from '@/shared/assets/logo-korail.svg?react'
 
 const Header = () => {
   return (
-    <header className='flex h-[60px] w-full items-center justify-between bg-gray-0 px-[6px] py-2'>
+    <header className='flex h-[60px] w-full items-center justify-between bg-slate-50 px-[6px] py-2'>
       <div className='flex h-11 w-[190px] shrink-0 items-center gap-[5px] p-2.5'>
         <KorailLogo className='h-6 w-[99.4px] shrink-0' />
 

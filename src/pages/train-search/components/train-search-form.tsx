@@ -3,12 +3,16 @@ import type { FormEvent } from 'react'
 import StationSelector from '@/pages/train-search/components/station-selector'
 import TravelDatePicker from '@/pages/train-search/components/travel-date-picker'
 import TripTypeTabs from '@/pages/train-search/components/trip-type-tabs'
-import type { TrainSearchCondition } from '@/pages/train-search/types/train-search-condition'
+import type {
+  TrainSearchCondition,
+  TripType,
+} from '@/pages/train-search/types/train-search-condition'
 import Button from '@/shared/components/button'
 
 interface TrainSearchFormProps {
   condition: TrainSearchCondition
   onSubmit: () => void
+  onTripTypeChange: (tripType: TripType) => void
 }
 
 interface ConditionFieldProps {
@@ -50,7 +54,7 @@ const StationOption = ({ label, isChecked }: StationOptionProps) => {
   )
 }
 
-const TrainSearchForm = ({ condition, onSubmit }: TrainSearchFormProps) => {
+const TrainSearchForm = ({ condition, onSubmit, onTripTypeChange }: TrainSearchFormProps) => {
   const {
     tripType,
     dateLabel,
@@ -74,7 +78,7 @@ const TrainSearchForm = ({ condition, onSubmit }: TrainSearchFormProps) => {
       className='flex w-full max-w-[343px] flex-col gap-4 rounded-12 bg-gray-0 p-4 shadow-[0_0_2px_rgba(0,0,0,0.08)]'
       onSubmit={handleSubmit}
     >
-      <TripTypeTabs selectedTripType={tripType} />
+      <TripTypeTabs selectedTripType={tripType} onTripTypeChange={onTripTypeChange} />
 
       <div className='flex w-full flex-col gap-2'>
         <TravelDatePicker dateLabel={dateLabel} timeLabel={timeLabel} />

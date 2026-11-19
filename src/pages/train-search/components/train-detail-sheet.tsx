@@ -1,14 +1,7 @@
 import CloseIcon from '@/pages/train-search/assets/icon-close.svg'
-import ItxCheongchunLogo from '@/pages/train-search/assets/logo-itx-cheongchun.png'
-import ItxSaemaeulLogo from '@/pages/train-search/assets/logo-itx-saemaeul.png'
-import KtxLogo from '@/pages/train-search/assets/logo-ktx.png'
-import MugunghwaLogo from '@/pages/train-search/assets/logo-mugunghwa.png'
 import TrainDetailActionButtons from '@/pages/train-search/components/train-detail-action-buttons'
-import type {
-  TrainDetailInfo,
-  TrainFareOption,
-  TrainType,
-} from '@/pages/train-search/types/train-detail'
+import TrainLogo from '@/pages/train-search/components/train-logo'
+import type { TrainDetailInfo, TrainFareOption } from '@/pages/train-search/types/train-detail'
 import ChevronRightIcon from '@/shared/assets/icon-chevron-right.svg?react'
 import BottomSheet from '@/shared/components/bottom-sheet'
 import TrainTimeRow from '@/shared/components/train-time-row'
@@ -29,12 +22,6 @@ interface TrainDetailHeaderProps {
   onClose: () => void
 }
 
-interface TrainLogo {
-  alt: string
-  src: string
-  width: number
-}
-
 interface TrainFareInfoProps {
   fareOption: TrainFareOption
   passengerSummary: string
@@ -44,44 +31,14 @@ interface TrainTotalPriceProps {
   price: number
 }
 
-const trainLogos: Record<TrainType, TrainLogo> = {
-  'itx-cheongchun': {
-    alt: 'ITX 청춘',
-    src: ItxCheongchunLogo,
-    width: 37,
-  },
-  'itx-saemaeul': {
-    alt: 'ITX 새마을',
-    src: ItxSaemaeulLogo,
-    width: 49,
-  },
-  ktx: {
-    alt: 'KTX',
-    src: KtxLogo,
-    width: 36,
-  },
-  mugunghwa: {
-    alt: '무궁화',
-    src: MugunghwaLogo,
-    width: 35,
-  },
-}
-
 const TrainDetailHeader = ({ train, onClose }: TrainDetailHeaderProps) => {
   const { trainType, trainNumber, departureDate, departureStation, arrivalStation } = train
-  const trainLogo = trainLogos[trainType]
 
   return (
     <div className='flex items-start justify-between gap-4 px-4 pt-5 pb-4'>
       <div className='flex min-w-0 flex-col items-start gap-1 overflow-hidden'>
         <div className='flex w-full items-center gap-2'>
-          <img
-            alt={trainLogo.alt}
-            className='h-3 w-auto shrink-0'
-            height={12}
-            src={trainLogo.src}
-            width={trainLogo.width}
-          />
+          <TrainLogo trainType={trainType} />
           <span className='shrink-0 rounded-full bg-slate-50 px-2.5 py-0.5 text-caption-10-m text-gray-600'>
             {trainNumber}
           </span>
