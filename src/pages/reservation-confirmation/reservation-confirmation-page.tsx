@@ -83,6 +83,7 @@ const ReservationContent = ({ reservationId }: { reservationId: number }) => {
   } = useQuery({
     queryKey: ['reservation', reservationId],
     queryFn: () => getReservationDetail(reservationId),
+    staleTime: 0,
   })
 
   if (isError) {
