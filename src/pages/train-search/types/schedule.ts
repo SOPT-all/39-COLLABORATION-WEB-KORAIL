@@ -32,3 +32,7 @@ export interface ScheduleListResponse {
   passengerCount: number
   schedules: ScheduleResponse[]
 }
+
+export interface ScheduleDetailResponse extends ScheduleResponse {
+  passengerCount: number
+}

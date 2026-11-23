@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
+import { getScheduleDetail } from '@/pages/train-search/api/get-schedule-detail'
 import { getSchedules } from '@/pages/train-search/api/get-schedules'
 import NextDaySearchButton from '@/pages/train-search/components/next-day-search-button'
 import TrainDetailSheet from '@/pages/train-search/components/train-detail-sheet'
@@ -12,7 +13,11 @@ import TrainTypeFilter, {
 } from '@/pages/train-search/components/train-type-filter'
 import type { TrainDetailInfo, TrainFareOption } from '@/pages/train-search/types/train-detail'
 import type { TrainResult } from '@/pages/train-search/types/train-result'
-import type { ScheduleResponse, ScheduleTrainType } from '@/pages/train-search/types/schedule'
+import type {
+  ScheduleDetailResponse,
+  ScheduleResponse,
+  ScheduleTrainType,
+} from '@/pages/train-search/types/schedule'
 import type {
   TrainSearchCondition,
   TripType,
@@ -87,6 +92,12 @@ const getFare = (schedule: ScheduleResponse, seatClass: 'STANDARD' | 'FIRST') =>
   return schedule.fares.find((fare) => fare.seatClass === seatClass)?.totalPrice
 }
 
+const getPassengerCount = (passengerLabel: string) => {
+  const passengerCount = Number(passengerLabel.match(/\d+/)?.[0])
+
+  return Number.isInteger(passengerCount) && passengerCount > 0 ? passengerCount : 1
+}
+
 const getTrainResult = (
   schedule: ScheduleResponse,
   departureStation: string,
@@ -122,6 +133,22 @@ const getTrainDetail = (train: TrainResult, departureDate: string): TrainDetailI
   stopStation: train.stopStation,
 })
 
+const getScheduleTrainDetail = (
+  schedule: ScheduleDetailResponse,
+  departureStation: string,
+  arrivalStation: string,
+): TrainDetailInfo => ({
+  trainType: trainTypeBySchedule[schedule.trainType],
+  trainNumber: schedule.trainNumber,
+  departureDate: formatDateLabel(new Date(schedule.departureAt)),
+  departureTime: formatTime(schedule.departureAt),
+  departureStation,
+  arrivalTime: formatTime(schedule.arrivalAt),
+  arrivalStation,
+  duration: formatDuration(schedule.durationMinutes),
+  stopStation: schedule.remark ?? undefined,
+})
+
 const getStandardFare = (train: TrainResult): TrainFareOption => ({
   seatGrade: 'standard',
   label: '일반실',
@@ -140,6 +167,7 @@ const TrainSearchPage = () => {
   const [selectedTrain, setSelectedTrain] = useState<TrainResult | null>(null)
 
   const scheduleTrainType = scheduleTrainTypeByFilter[selectedTrainType]
+  const passengerCount = getPassengerCount(submittedCondition.passengerLabel)
   const {
     data: scheduleList,
     isPending,
@@ -157,7 +185,7 @@ const TrainSearchPage = () => {
         departureStation: submittedCondition.departureStation,
         arrivalStation: submittedCondition.arrivalStation,
         departureDate: formatRequestDate(submittedDepartureDate),
-        passengerCount: 1,
+        passengerCount,
         trainTypes: scheduleTrainType ? [scheduleTrainType] : undefined,
       }),
   })
@@ -170,6 +198,23 @@ const TrainSearchPage = () => {
         submittedCondition.arrivalStation,
       ),
     ) ?? []
+
+  const selectedScheduleId = selectedTrain ? Number(selectedTrain.id) : null
+  const {
+    data: scheduleDetail,
+    isPending: isDetailPending,
+    isError: isDetailError,
+  } = useQuery({
+    queryKey: ['schedule-detail', selectedScheduleId, passengerCount],
+    queryFn: () => {
+      if (selectedScheduleId === null) {
+        throw new Error('선택한 열차 일정이 없습니다.')
+      }
+
+      return getScheduleDetail(selectedScheduleId, passengerCount)
+    },
+    enabled: selectedScheduleId !== null,
+  })
 
   const handleSearchSubmit = () => {
     setSubmittedCondition(searchCondition)
@@ -284,9 +329,27 @@ const TrainSearchPage = () => {
       {selectedTrain && (
         <TrainDetailSheet
           open
-          train={getTrainDetail(selectedTrain, searchCondition.dateLabel)}
-          fareOption={getStandardFare(selectedTrain)}
-          passengerSummary={`${searchCondition.passengerLabel} 기준`}
+          train={
+            scheduleDetail
+              ? getScheduleTrainDetail(
+                  scheduleDetail,
+                  submittedCondition.departureStation,
+                  submittedCondition.arrivalStation,
+                )
+              : getTrainDetail(selectedTrain, submittedCondition.dateLabel)
+          }
+          fareOption={
+            scheduleDetail
+              ? {
+                  seatGrade: 'standard',
+                  label: '일반실',
+                  price: getFare(scheduleDetail, 'STANDARD') ?? selectedTrain.standardFare,
+                }
+              : getStandardFare(selectedTrain)
+          }
+          passengerSummary={`어른 ${scheduleDetail?.passengerCount ?? passengerCount}명 기준`}
+          isPending={isDetailPending}
+          isError={isDetailError}
           onClose={() => setSelectedTrain(null)}
           onReservationClick={handleReservation}
           onSeatSelectClick={handleSeatSelect}

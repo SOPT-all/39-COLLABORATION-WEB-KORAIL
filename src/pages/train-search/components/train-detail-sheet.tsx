@@ -11,6 +11,8 @@ interface TrainDetailSheetProps {
   train: TrainDetailInfo
   fareOption: TrainFareOption
   passengerSummary: string
+  isPending?: boolean
+  isError?: boolean
   isReservationDisabled?: boolean
   onClose: () => void
   onReservationClick: () => void
@@ -101,6 +103,8 @@ const TrainDetailSheet = ({
   train,
   fareOption,
   passengerSummary,
+  isPending = false,
+  isError = false,
   isReservationDisabled = false,
   onClose,
   onReservationClick,
@@ -116,40 +120,56 @@ const TrainDetailSheet = ({
       title='열차 상세'
       renderHeader={() => <TrainDetailHeader train={train} onClose={onClose} />}
       footer={
-        <div className='flex w-full flex-col'>
-          <TrainTotalPrice price={fareOption.price} />
-          <TrainDetailActionButtons
-            isReservationDisabled={isReservationDisabled}
-            reservationLabel='바로 예매하기'
-            onReservationClick={onReservationClick}
-            onSeatSelectClick={onSeatSelectClick}
-          />
-        </div>
-      }
-    >
-      <div className='flex w-full flex-col gap-4'>
-        <section aria-label='열차 운행 정보' className='rounded-8 bg-slate-50 px-4 py-1'>
-          <div className='py-3'>
-            <TrainTimeRow
-              departureTime={departureTime}
-              departureStation={departureStation}
-              arrivalTime={arrivalTime}
-              arrivalStation={arrivalStation}
-              duration={duration}
-              stopStation={stopStation}
+        !isPending && !isError ? (
+          <div className='flex w-full flex-col'>
+            <TrainTotalPrice price={fareOption.price} />
+            <TrainDetailActionButtons
+              isReservationDisabled={isReservationDisabled}
+              reservationLabel='바로 예매하기'
+              onReservationClick={onReservationClick}
+              onSeatSelectClick={onSeatSelectClick}
             />
           </div>
+        ) : undefined
+      }
+    >
+      {isPending && (
+        <p className='py-16 text-center text-body-14-r text-gray-600' role='status'>
+          열차 상세 정보를 불러오는 중입니다.
+        </p>
+      )}
 
-          <div className='flex h-[42px] w-full items-center justify-between border-t border-slate-100 text-left text-body-14-r text-gray-700'>
-            <span>정차역 · 소요시간 상세</span>
-            <span className='flex h-full w-11 shrink-0 items-center justify-end'>
-              <ChevronRightIcon aria-hidden='true' className='[&_path]:stroke-gray-700' />
-            </span>
-          </div>
-        </section>
+      {isError && (
+        <p className='py-16 text-center text-body-14-r text-gray-600' role='alert'>
+          열차 상세 정보를 불러오지 못했습니다.
+        </p>
+      )}
 
-        <TrainFareInfo passengerSummary={passengerSummary} />
-      </div>
+      {!isPending && !isError && (
+        <div className='flex w-full flex-col gap-4'>
+          <section aria-label='열차 운행 정보' className='rounded-8 bg-slate-50 px-4 py-1'>
+            <div className='py-3'>
+              <TrainTimeRow
+                departureTime={departureTime}
+                departureStation={departureStation}
+                arrivalTime={arrivalTime}
+                arrivalStation={arrivalStation}
+                duration={duration}
+                stopStation={stopStation}
+              />
+            </div>
+
+            <div className='flex h-[42px] w-full items-center justify-between border-t border-slate-100 text-left text-body-14-r text-gray-700'>
+              <span>정차역 · 소요시간 상세</span>
+              <span className='flex h-full w-11 shrink-0 items-center justify-end'>
+                <ChevronRightIcon aria-hidden='true' className='[&_path]:stroke-gray-700' />
+              </span>
+            </div>
+          </section>
+
+          <TrainFareInfo passengerSummary={passengerSummary} />
+        </div>
+      )}
     </BottomSheet>
   )
 }
