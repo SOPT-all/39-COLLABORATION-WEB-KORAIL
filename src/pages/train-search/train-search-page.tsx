@@ -77,6 +77,9 @@ const formatDuration = (durationMinutes: number) => {
   const hours = Math.floor(durationMinutes / 60)
   const minutes = durationMinutes % 60
 
+  if (hours === 0) return `${minutes}분`
+  if (minutes === 0) return `${hours}시간`
+
   return `${hours}시간 ${minutes}분`
 }
 
