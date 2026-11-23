@@ -56,12 +56,10 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
   const reservationMutation = useMutation({
     mutationFn: createReservation,
     retry: false,
-    onSuccess: ({ reservationId }) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ['seats', scheduleId],
       })
-
-      navigate(`/reservation-confirmation?reservationId=${reservationId}`)
     },
     onError: (error) => {
       if (isAxiosError<ReservationErrorResponse>(error)) {
@@ -115,12 +113,19 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
     isSubmittingRef.current = true
     setReservationError('')
 
-    reservationMutation.mutate({
-      scheduleId,
-      seatClass: 'STANDARD',
-      passengerCount: 1,
-      seatIds: [selectedSeat.seatId],
-    })
+    reservationMutation.mutate(
+      {
+        scheduleId,
+        seatClass: 'STANDARD',
+        passengerCount: 1,
+        seatIds: [selectedSeat.seatId],
+      },
+      {
+        onSuccess: ({ reservationId }) => {
+          navigate(`/reservation-confirmation?reservationId=${reservationId}`)
+        },
+      },
+    )
   }
 
   if (isError) {
@@ -168,12 +173,6 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
       </div>
 
       <div className='min-h-0 flex-1 overflow-y-auto overscroll-contain py-5'>
-        {reservationError && (
-          <p className='px-4 pb-3' role='alert'>
-            {reservationError}
-          </p>
-        )}
-
         <SeatGrid
           seats={seatLayout.seats}
           selectedSeatId={selectedSeat?.seatId ?? null}
@@ -183,7 +182,13 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
         />
       </div>
 
-      <div className='shrink-0'>
+      <div className='shrink-0 bg-gray-0'>
+        {reservationError && (
+          <p className='px-4 pt-3 text-body-14-r text-red-450' role='alert'>
+            {reservationError}
+          </p>
+        )}
+
         <SeatSelectionCta
           selectedSeatCount={selectedSeat ? 1 : 0}
           isPending={reservationMutation.isPending}
