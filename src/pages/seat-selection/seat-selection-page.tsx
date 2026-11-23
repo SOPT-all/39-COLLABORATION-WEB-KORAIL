@@ -1,7 +1,9 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
 import { useNavigate, useParams } from 'react-router'
 
+import { createReservation } from './api/create-reservation'
 import { getSeatLayout } from './api/get-seat-layout'
 import CarSelectionSheet, { type CoachOption } from './components/car-selection-sheet'
 import CarSelectionTrigger from './components/car-selection-trigger'
@@ -14,7 +16,6 @@ const departureStation = '서울'
 const arrivalStation = '부산'
 
 // 호차 조회 연결 전 테스트용 ID
-// /seat-selection/13에서 확인 가능
 const TEMP_COACH_ID = 1
 
 const previewCoaches: CoachOption[] = [17, 6, 0, 13, 5, 0, 0, 3, 0].map(
@@ -28,12 +29,19 @@ const previewCoaches: CoachOption[] = [17, 6, 0, 13, 5, 0, 0, 3, 0].map(
   }),
 )
 
+interface ReservationErrorResponse {
+  message?: string
+}
+
 const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const isSubmittingRef = useRef(false)
 
   const [isCarSheetOpen, setIsCarSheetOpen] = useState(false)
   const [isNoticeOpen, setIsNoticeOpen] = useState(false)
   const [selectedSeatId, setSelectedSeatId] = useState<number | null>(null)
+  const [reservationError, setReservationError] = useState('')
 
   const {
     data: seatLayout,
@@ -45,17 +53,79 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
     staleTime: 0,
   })
 
+  const reservationMutation = useMutation({
+    mutationFn: createReservation,
+    retry: false,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['seats', scheduleId],
+      })
+    },
+    onError: (error) => {
+      if (isAxiosError<ReservationErrorResponse>(error)) {
+        if (error.response?.status === 409) {
+          setSelectedSeatId(null)
+          setReservationError('좌석 상태가 변경됐습니다. 다시 선택해 주세요.')
+
+          void queryClient.invalidateQueries({
+            queryKey: ['seats', scheduleId],
+          })
+          return
+        }
+
+        setReservationError(
+          error.response?.data?.message ||
+            '예약 요청을 완료하지 못했습니다. 네트워크와 예약 결과를 확인해 주세요.',
+        )
+        return
+      }
+
+      setReservationError('예약 생성 응답을 확인하지 못했습니다. 예약 결과를 확인해 주세요.')
+    },
+    onSettled: () => {
+      isSubmittingRef.current = false
+    },
+  })
+
   const selectedSeat = seatLayout?.seats.find(
     (seat) => seat.seatId === selectedSeatId && seat.available,
   )
 
   const handleSeatChange = (nextSeatId: number | null) => {
+    if (isSubmittingRef.current) {
+      return
+    }
+
     if (selectedSeat && nextSeatId !== null) {
       setIsNoticeOpen(true)
       return
     }
 
+    setReservationError('')
     setSelectedSeatId(nextSeatId)
+  }
+
+  const handleCreateReservation = () => {
+    if (!seatLayout || !selectedSeat || isSubmittingRef.current) {
+      return
+    }
+
+    isSubmittingRef.current = true
+    setReservationError('')
+
+    reservationMutation.mutate(
+      {
+        scheduleId,
+        seatClass: 'STANDARD',
+        passengerCount: 1,
+        seatIds: [selectedSeat.seatId],
+      },
+      {
+        onSuccess: ({ reservationId }) => {
+          navigate(`/reservation-confirmation?reservationId=${reservationId}`)
+        },
+      },
+    )
   }
 
   if (isError) {
@@ -112,10 +182,17 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
         />
       </div>
 
-      <div className='shrink-0'>
+      <div className='shrink-0 bg-gray-0'>
+        {reservationError && (
+          <p className='px-4 pt-3 text-body-14-r text-red-450' role='alert'>
+            {reservationError}
+          </p>
+        )}
+
         <SeatSelectionCta
           selectedSeatCount={selectedSeat ? 1 : 0}
-          onSeatSelectClick={() => navigate('/reservation-confirmation')}
+          isPending={reservationMutation.isPending}
+          onSeatSelectClick={handleCreateReservation}
         />
       </div>
 
