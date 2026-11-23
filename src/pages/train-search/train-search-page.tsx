@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
+import { getSchedules } from '@/pages/train-search/api/get-schedules'
 import NextDaySearchButton from '@/pages/train-search/components/next-day-search-button'
 import TrainDetailSheet from '@/pages/train-search/components/train-detail-sheet'
 import TrainResultList from '@/pages/train-search/components/train-result-list'
@@ -10,15 +12,43 @@ import TrainTypeFilter, {
 } from '@/pages/train-search/components/train-type-filter'
 import type { TrainDetailInfo, TrainFareOption } from '@/pages/train-search/types/train-detail'
 import type { TrainResult } from '@/pages/train-search/types/train-result'
+import type { ScheduleResponse, ScheduleTrainType } from '@/pages/train-search/types/schedule'
 import type {
   TrainSearchCondition,
   TripType,
 } from '@/pages/train-search/types/train-search-condition'
 
+const formatRequestDate = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+const formatDateLabel = (date: Date) => {
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${month}.${day} (${weekdays[date.getDay()]})`
+}
+
+const addDays = (date: Date, days: number) => {
+  const nextDate = new Date(date)
+  nextDate.setDate(nextDate.getDate() + days)
+
+  return nextDate
+}
+
+const initialDepartureDate = new Date()
+
 const initialSearchCondition: TrainSearchCondition = {
   tripType: 'round-trip',
-  dateLabel: '10.26 (월)',
-  timeLabel: '01:00 이후',
+  dateLabel: formatDateLabel(initialDepartureDate),
+  timeLabel: `${String(initialDepartureDate.getHours()).padStart(2, '0')}:${String(
+    initialDepartureDate.getMinutes(),
+  ).padStart(2, '0')} 이후`,
   departureStation: '서울',
   arrivalStation: '부산',
   seatGradeLabel: '전체',
@@ -27,50 +57,58 @@ const initialSearchCondition: TrainSearchCondition = {
   isAdjacentStationIncluded: false,
 }
 
-const trainResults: TrainResult[] = [
-  {
-    id: 'itx-cheongchun-001',
-    trainType: 'itx-cheongchun',
-    trainNumber: '001',
-    departureTime: '05:13',
-    departureStation: '서울',
-    arrivalTime: '07:50',
-    arrivalStation: '부산',
-    duration: '2시간 37분',
-    stopStation: '서대구정차',
-    standardFare: 78400,
-    firstClassFare: 78400,
+const scheduleTrainTypeByFilter: Partial<Record<TrainFilterType, ScheduleTrainType>> = {
+  ktx: 'KTX',
+  'itx-saemaeul': 'ITX',
+  'itx-cheongchun': 'ITX_CHEONGCHUN',
+  mugunghwa: 'MUGUNGHWA',
+}
+
+const trainTypeBySchedule: Record<ScheduleTrainType, TrainResult['trainType']> = {
+  KTX: 'ktx',
+  ITX: 'itx-saemaeul',
+  ITX_CHEONGCHUN: 'itx-cheongchun',
+  MUGUNGHWA: 'mugunghwa',
+}
+
+const formatTime = (dateTime: string) => dateTime.slice(11, 16)
+
+const formatDuration = (durationMinutes: number) => {
+  const hours = Math.floor(durationMinutes / 60)
+  const minutes = durationMinutes % 60
+
+  if (hours === 0) return `${minutes}분`
+  if (minutes === 0) return `${hours}시간`
+
+  return `${hours}시간 ${minutes}분`
+}
+
+const getFare = (schedule: ScheduleResponse, seatClass: 'STANDARD' | 'FIRST') => {
+  return schedule.fares.find((fare) => fare.seatClass === seatClass)?.totalPrice
+}
+
+const getTrainResult = (
+  schedule: ScheduleResponse,
+  departureStation: string,
+  arrivalStation: string,
+): TrainResult => {
+  const standardFare = getFare(schedule, 'STANDARD') ?? 0
+
+  return {
+    id: String(schedule.scheduleId),
+    trainType: trainTypeBySchedule[schedule.trainType],
+    trainNumber: schedule.trainNumber,
+    departureTime: formatTime(schedule.departureAt),
+    departureStation,
+    arrivalTime: formatTime(schedule.arrivalAt),
+    arrivalStation,
+    duration: formatDuration(schedule.durationMinutes),
+    stopStation: schedule.remark ?? undefined,
+    standardFare,
+    firstClassFare: getFare(schedule, 'FIRST') ?? standardFare,
     rewardRate: 5,
-  },
-  {
-    id: 'itx-cheongchun-002',
-    trainType: 'itx-cheongchun',
-    trainNumber: '001',
-    departureTime: '05:13',
-    departureStation: '서울',
-    arrivalTime: '07:50',
-    arrivalStation: '부산',
-    duration: '2시간 37분',
-    stopStation: '서대구정차',
-    standardFare: 78400,
-    firstClassFare: 78400,
-    rewardRate: 5,
-  },
-  {
-    id: 'mugunghwa-001',
-    trainType: 'mugunghwa',
-    trainNumber: '001',
-    departureTime: '05:13',
-    departureStation: '서울',
-    arrivalTime: '07:50',
-    arrivalStation: '부산',
-    duration: '2시간 37분',
-    stopStation: '서대구정차',
-    standardFare: 78400,
-    firstClassFare: 78400,
-    rewardRate: 5,
-  },
-]
+  }
+}
 
 const getTrainDetail = (train: TrainResult, departureDate: string): TrainDetailInfo => ({
   trainType: train.trainType,
@@ -94,15 +132,48 @@ const TrainSearchPage = () => {
   const navigate = useNavigate()
   const [searchCondition, setSearchCondition] =
     useState<TrainSearchCondition>(initialSearchCondition)
+  const [submittedCondition, setSubmittedCondition] =
+    useState<TrainSearchCondition>(initialSearchCondition)
+  const [departureDate, setDepartureDate] = useState(initialDepartureDate)
+  const [submittedDepartureDate, setSubmittedDepartureDate] = useState(initialDepartureDate)
   const [selectedTrainType, setSelectedTrainType] = useState<TrainFilterType>('all')
   const [selectedTrain, setSelectedTrain] = useState<TrainResult | null>(null)
 
-  const filteredTrains =
-    selectedTrainType === 'all'
-      ? trainResults
-      : trainResults.filter(({ trainType }) => trainType === selectedTrainType)
+  const scheduleTrainType = scheduleTrainTypeByFilter[selectedTrainType]
+  const {
+    data: scheduleList,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: [
+      'schedules',
+      submittedCondition.departureStation,
+      submittedCondition.arrivalStation,
+      formatRequestDate(submittedDepartureDate),
+      scheduleTrainType,
+    ],
+    queryFn: () =>
+      getSchedules({
+        departureStation: submittedCondition.departureStation,
+        arrivalStation: submittedCondition.arrivalStation,
+        departureDate: formatRequestDate(submittedDepartureDate),
+        passengerCount: 1,
+        trainTypes: scheduleTrainType ? [scheduleTrainType] : undefined,
+      }),
+  })
+
+  const trainResults =
+    scheduleList?.schedules.map((schedule) =>
+      getTrainResult(
+        schedule,
+        submittedCondition.departureStation,
+        submittedCondition.arrivalStation,
+      ),
+    ) ?? []
 
   const handleSearchSubmit = () => {
+    setSubmittedCondition(searchCondition)
+    setSubmittedDepartureDate(departureDate)
     setSelectedTrainType('all')
     setSelectedTrain(null)
   }
@@ -141,11 +212,17 @@ const TrainSearchPage = () => {
   }
 
   const handleNextDaySearch = () => {
-    setSearchCondition((condition) => ({
-      ...condition,
-      dateLabel: '10.27 (화)',
+    const nextDepartureDate = addDays(submittedDepartureDate, 1)
+    const nextSearchCondition = {
+      ...submittedCondition,
+      dateLabel: formatDateLabel(nextDepartureDate),
       timeLabel: '00:00 이후',
-    }))
+    }
+
+    setDepartureDate(nextDepartureDate)
+    setSubmittedDepartureDate(nextDepartureDate)
+    setSearchCondition(nextSearchCondition)
+    setSubmittedCondition(nextSearchCondition)
     setSelectedTrainType('all')
     setSelectedTrain(null)
   }
@@ -159,6 +236,8 @@ const TrainSearchPage = () => {
   const handleReservation = () => {
     navigate('/reservation-confirmation')
   }
+
+  const nextDateLabel = formatDateLabel(addDays(departureDate, 1))
 
   return (
     <main className='min-h-[calc(100dvh-60px)] bg-slate-50 px-4'>
@@ -180,11 +259,25 @@ const TrainSearchPage = () => {
             onTrainTypeChange={handleTrainTypeChange}
           />
 
-          <TrainResultList trains={filteredTrains} onTrainSelect={setSelectedTrain} />
+          {isPending && (
+            <p className='pt-18 text-center text-body-14-r text-gray-600' role='status'>
+              열차 정보를 불러오는 중입니다.
+            </p>
+          )}
+
+          {isError && (
+            <p className='pt-18 text-center text-body-14-r text-gray-600' role='alert'>
+              열차 정보를 불러오지 못했습니다.
+            </p>
+          )}
+
+          {!isPending && !isError && (
+            <TrainResultList trains={trainResults} onTrainSelect={setSelectedTrain} />
+          )}
         </div>
 
         <div className='mt-auto pt-4 pb-14'>
-          <NextDaySearchButton nextDateLabel='10.27 (화)' onClick={handleNextDaySearch} />
+          <NextDaySearchButton nextDateLabel={nextDateLabel} onClick={handleNextDaySearch} />
         </div>
       </div>
 
