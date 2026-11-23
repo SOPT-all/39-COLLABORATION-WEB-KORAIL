@@ -5,12 +5,6 @@ export type ReservationStatus = 'PENDING' | 'PAID' | 'CANCELED' | 'EXPIRED'
 export type ServerTrainType = 'KTX' | 'ITX' | 'ITX_CHEONGCHUN' | 'MUGUNGHWA'
 export type SeatClass = 'STANDARD' | 'FIRST'
 
-export interface ReservationFare {
-  seatClass: SeatClass
-  unitPrice: number
-  totalPrice: number
-}
-
 export interface ReservationSchedule {
   scheduleId: number
   trainNumber: string
@@ -21,8 +15,7 @@ export interface ReservationSchedule {
   departureAt: string
   arrivalAt: string
   durationMinutes: number
-  remark: string
-  fares: ReservationFare[]
+  remark: string | null
 }
 
 export interface ReservationTicket {
