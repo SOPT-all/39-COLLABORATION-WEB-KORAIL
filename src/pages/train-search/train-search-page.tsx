@@ -212,15 +212,17 @@ const TrainSearchPage = () => {
   }
 
   const handleNextDaySearch = () => {
-    const nextDepartureDate = addDays(departureDate, 1)
+    const nextDepartureDate = addDays(submittedDepartureDate, 1)
+    const nextSearchCondition = {
+      ...submittedCondition,
+      dateLabel: formatDateLabel(nextDepartureDate),
+      timeLabel: '00:00 이후',
+    }
 
     setDepartureDate(nextDepartureDate)
     setSubmittedDepartureDate(nextDepartureDate)
-    setSearchCondition((condition) => ({
-      ...condition,
-      dateLabel: formatDateLabel(nextDepartureDate),
-      timeLabel: '00:00 이후',
-    }))
+    setSearchCondition(nextSearchCondition)
+    setSubmittedCondition(nextSearchCondition)
     setSelectedTrainType('all')
     setSelectedTrain(null)
   }
