@@ -23,7 +23,6 @@ interface TrainDetailHeaderProps {
 }
 
 interface TrainFareInfoProps {
-  fareOption: TrainFareOption
   passengerSummary: string
 }
 
@@ -62,7 +61,7 @@ const TrainDetailHeader = ({ train, onClose }: TrainDetailHeaderProps) => {
   )
 }
 
-const TrainFareInfo = ({ fareOption, passengerSummary }: TrainFareInfoProps) => {
+const TrainFareInfo = ({ passengerSummary }: TrainFareInfoProps) => {
   return (
     <section aria-label='운임 요금' className='flex w-full flex-col gap-2'>
       <div className='flex w-full items-center justify-between overflow-hidden whitespace-nowrap'>
@@ -72,11 +71,11 @@ const TrainFareInfo = ({ fareOption, passengerSummary }: TrainFareInfoProps) => 
 
       <div
         role='group'
-        aria-label='좌석 등급'
+        aria-label='좌석 등급: 일반실'
         className='flex w-full gap-0.5 rounded-8 bg-slate-50 p-1'
       >
         <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 bg-gray-0 px-3 py-1 text-center text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'>
-          {fareOption.label}
+          일반실
         </span>
         <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 px-3 py-1 text-center text-body-14-m text-gray-500'>
           특실
@@ -149,7 +148,7 @@ const TrainDetailSheet = ({
           </div>
         </section>
 
-        <TrainFareInfo fareOption={fareOption} passengerSummary={passengerSummary} />
+        <TrainFareInfo passengerSummary={passengerSummary} />
       </div>
     </BottomSheet>
   )
