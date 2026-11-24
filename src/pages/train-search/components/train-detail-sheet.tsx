@@ -14,6 +14,8 @@ interface TrainDetailSheetProps {
   isPending?: boolean
   isError?: boolean
   isReservationDisabled?: boolean
+  isReservationPending?: boolean
+  reservationError?: string
   onClose: () => void
   onReservationClick: () => void
   onSeatSelectClick: () => void
@@ -49,6 +51,7 @@ const TrainDetailHeader = ({ train, onClose }: TrainDetailHeaderProps) => {
           {departureDate} · {departureStation} → {arrivalStation}
         </p>
       </div>
+
       <div className='relative h-6 w-[34px] shrink-0'>
         <button
           type='button'
@@ -63,40 +66,36 @@ const TrainDetailHeader = ({ train, onClose }: TrainDetailHeaderProps) => {
   )
 }
 
-const TrainFareInfo = ({ passengerSummary }: TrainFareInfoProps) => {
-  return (
-    <section aria-label='운임 요금' className='flex w-full flex-col gap-2'>
-      <div className='flex w-full items-center justify-between overflow-hidden whitespace-nowrap'>
-        <h2 className='text-heading-16-b text-gray-900'>운임 요금</h2>
-        <p className='min-w-0 truncate text-body-14-r text-gray-500'>{passengerSummary}</p>
-      </div>
+const TrainFareInfo = ({ passengerSummary }: TrainFareInfoProps) => (
+  <section aria-label='운임 요금' className='flex w-full flex-col gap-2'>
+    <div className='flex w-full items-center justify-between overflow-hidden whitespace-nowrap'>
+      <h2 className='text-heading-16-b text-gray-900'>운임 요금</h2>
+      <p className='min-w-0 truncate text-body-14-r text-gray-500'>{passengerSummary}</p>
+    </div>
 
-      <div
-        role='group'
-        aria-label='좌석 등급: 일반실'
-        className='flex w-full gap-0.5 rounded-8 bg-slate-50 p-1'
-      >
-        <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 bg-gray-0 px-3 py-1 text-center text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'>
-          일반실
-        </span>
-        <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 px-3 py-1 text-center text-body-14-m text-gray-500'>
-          특실
-        </span>
-      </div>
-    </section>
-  )
-}
+    <div
+      role='group'
+      aria-label='좌석 등급: 일반실'
+      className='flex w-full gap-0.5 rounded-8 bg-slate-50 p-1'
+    >
+      <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 bg-gray-0 px-3 py-1 text-center text-body-14-b text-gray-900 shadow-[0_0_2px_rgba(0,0,0,0.08)]'>
+        일반실
+      </span>
+      <span className='flex h-10 min-w-0 flex-1 items-center justify-center rounded-8 px-3 py-1 text-center text-body-14-m text-gray-500'>
+        특실
+      </span>
+    </div>
+  </section>
+)
 
 const priceFormatter = new Intl.NumberFormat('ko-KR')
 
-const TrainTotalPrice = ({ price }: TrainTotalPriceProps) => {
-  return (
-    <div className='flex w-full items-center justify-between overflow-hidden border-t border-slate-200 py-2 whitespace-nowrap'>
-      <span className='text-body-14-m text-gray-700'>총 결제 금액</span>
-      <strong className='text-title-22-b text-blue-500'>{priceFormatter.format(price)}원</strong>
-    </div>
-  )
-}
+const TrainTotalPrice = ({ price }: TrainTotalPriceProps) => (
+  <div className='flex w-full items-center justify-between overflow-hidden border-t border-slate-200 py-2 whitespace-nowrap'>
+    <span className='text-body-14-m text-gray-700'>총 결제 금액</span>
+    <strong className='text-title-22-b text-blue-500'>{priceFormatter.format(price)}원</strong>
+  </div>
+)
 
 const TrainDetailSheet = ({
   open,
@@ -106,6 +105,8 @@ const TrainDetailSheet = ({
   isPending = false,
   isError = false,
   isReservationDisabled = false,
+  isReservationPending = false,
+  reservationError = '',
   onClose,
   onReservationClick,
   onSeatSelectClick,
@@ -122,13 +123,26 @@ const TrainDetailSheet = ({
       footer={
         !isPending && !isError ? (
           <div className='flex w-full flex-col'>
+            {reservationError && (
+              <p className='pb-3 text-body-14-r text-red-450' role='alert'>
+                {reservationError}
+              </p>
+            )}
+
             <TrainTotalPrice price={fareOption.price} />
-            <TrainDetailActionButtons
-              isReservationDisabled={isReservationDisabled}
-              reservationLabel='바로 예매하기'
-              onReservationClick={onReservationClick}
-              onSeatSelectClick={onSeatSelectClick}
-            />
+
+            {isReservationPending ? (
+              <p className='py-3 text-center text-body-14-m text-gray-600' role='status'>
+                좌석을 자동 배정하고 예약하는 중입니다.
+              </p>
+            ) : (
+              <TrainDetailActionButtons
+                isReservationDisabled={isReservationDisabled}
+                reservationLabel='바로 예매하기'
+                onReservationClick={onReservationClick}
+                onSeatSelectClick={onSeatSelectClick}
+              />
+            )}
           </div>
         ) : undefined
       }

@@ -1,33 +1,32 @@
 import { useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
+
+import { getScheduleDetail } from '@/pages/train-search/api/get-schedule-detail'
 
 import { createReservation } from './api/create-reservation'
+import { getCoaches } from './api/get-coaches'
 import { getSeatLayout } from './api/get-seat-layout'
-import CarSelectionSheet, { type CoachOption } from './components/car-selection-sheet'
+import CarSelectionSheet from './components/car-selection-sheet'
 import CarSelectionTrigger from './components/car-selection-trigger'
 import SeatGrid from './components/seat-grid'
 import SeatSelectionCta from './components/seat-selection-cta'
 import SeatSelectionHeader from './components/seat-selection-header'
 import SeatSelectionNoticeModal from './components/seat-selection-notice-modal'
 
-const departureStation = '서울'
-const arrivalStation = '부산'
+const formatDepartureDateTime = (dateTime: string) => {
+  const [year, month, day] = dateTime.slice(0, 10).split('-').map(Number)
+  const hour = Number(dateTime.slice(11, 13))
+  const minute = dateTime.slice(14, 16)
+  const weekday = ['일', '월', '화', '수', '목', '금', '토'][
+    new Date(Date.UTC(year, month - 1, day)).getUTCDay()
+  ]
+  const period = hour < 12 ? '오전' : '오후'
+  const displayHour = hour % 12 || 12
 
-// 호차 조회 연결 전 테스트용 ID
-const TEMP_COACH_ID = 1
-
-const previewCoaches: CoachOption[] = [17, 6, 0, 13, 5, 0, 0, 3, 0].map(
-  (remainingSeatCount, index) => ({
-    coachId: 101 + index,
-    coachNumber: index + 1,
-    remainingSeatCount,
-    totalSeatCount: 56,
-    reservable: remainingSeatCount > 0,
-    description: index === 3 ? '유아동반석,휠체어석,전동휠체어석' : undefined,
-  }),
-)
+  return `${month}.${day} (${weekday}) ${period} ${displayHour}:${minute}`
+}
 
 interface ReservationErrorResponse {
   message?: string
@@ -35,6 +34,9 @@ interface ReservationErrorResponse {
 
 const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const departureStation = searchParams.get('departureStation') || '서울'
+  const arrivalStation = searchParams.get('arrivalStation') || '부산'
   const queryClient = useQueryClient()
   const isSubmittingRef = useRef(false)
 
@@ -44,12 +46,41 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
   const [reservationError, setReservationError] = useState('')
 
   const {
+    data: coachList,
+    isPending: isCoachesPending,
+    isError: isCoachesError,
+  } = useQuery({
+    queryKey: ['coaches', scheduleId],
+    queryFn: () => getCoaches(scheduleId),
+    staleTime: 0,
+  })
+
+  const firstCoach = coachList?.coaches.find((coach) => coach.coachNumber === 1)
+  const coachId = firstCoach?.coachId
+
+  const {
+    data: schedule,
+    isPending: isSchedulePending,
+    isError: isScheduleError,
+  } = useQuery({
+    queryKey: ['schedule-detail', scheduleId, 1],
+    queryFn: () => getScheduleDetail(scheduleId, 1),
+  })
+
+  const {
     data: seatLayout,
     isPending,
     isError,
   } = useQuery({
-    queryKey: ['seats', scheduleId, TEMP_COACH_ID],
-    queryFn: () => getSeatLayout(scheduleId, TEMP_COACH_ID),
+    queryKey: ['seats', scheduleId, coachId],
+    queryFn: () => {
+      if (coachId === undefined) {
+        throw new Error('1호차 정보를 찾을 수 없습니다.')
+      }
+
+      return getSeatLayout(scheduleId, coachId)
+    },
+    enabled: coachId !== undefined,
     staleTime: 0,
   })
 
@@ -60,6 +91,9 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
       void queryClient.invalidateQueries({
         queryKey: ['seats', scheduleId],
       })
+      void queryClient.invalidateQueries({
+        queryKey: ['coaches', scheduleId],
+      })
     },
     onError: (error) => {
       if (isAxiosError<ReservationErrorResponse>(error)) {
@@ -69,6 +103,9 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
 
           void queryClient.invalidateQueries({
             queryKey: ['seats', scheduleId],
+          })
+          void queryClient.invalidateQueries({
+            queryKey: ['coaches', scheduleId],
           })
           return
         }
@@ -128,6 +165,34 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
     )
   }
 
+  if (isScheduleError) {
+    return <p className='p-4'>열차 정보를 불러오지 못했습니다.</p>
+  }
+
+  if (isSchedulePending || !schedule) {
+    return (
+      <p className='p-4' role='status'>
+        열차 정보를 불러오는 중입니다.
+      </p>
+    )
+  }
+
+  if (isCoachesError) {
+    return <p className='p-4'>호차 정보를 불러오지 못했습니다.</p>
+  }
+
+  if (isCoachesPending) {
+    return (
+      <p className='p-4' role='status'>
+        호차 정보를 불러오는 중입니다.
+      </p>
+    )
+  }
+
+  if (!firstCoach) {
+    return <p className='p-4'>이 열차의 일반실 1호차 정보를 찾을 수 없습니다.</p>
+  }
+
   if (isError) {
     return <p className='p-4'>좌석 정보를 불러오지 못했습니다.</p>
   }
@@ -140,15 +205,12 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
     )
   }
 
-  // 호차 조회 연결 전까지 1호차에만 실제 좌석 응답을 반영
-  const coaches = previewCoaches.map((coach) =>
-    coach.coachNumber === seatLayout.coachNumber
+  const coaches = (coachList?.coaches ?? []).map((coach) =>
+    coach.coachId === seatLayout.coachId
       ? {
           ...coach,
-          coachId: seatLayout.coachId,
           remainingSeatCount: seatLayout.remainingSeatCount,
           totalSeatCount: seatLayout.totalSeatCount,
-          reservable: seatLayout.remainingSeatCount > 0,
         }
       : coach,
   )
@@ -157,11 +219,19 @@ const SeatSelectionContent = ({ scheduleId }: { scheduleId: number }) => {
     <main className='flex h-dvh flex-col overflow-hidden bg-slate-50'>
       <div className='relative z-10 shrink-0 bg-gray-0 pb-1 shadow-[0_2px_2px_rgba(0,0,0,0.08)]'>
         <SeatSelectionHeader
-          trainLabel='KTX,1'
-          departureDateTime='10.26 (월) 오후 5:13'
+          trainLabel={`${schedule.trainTypeName},${schedule.trainNumber}`}
+          departureDateTime={formatDepartureDateTime(schedule.departureAt)}
           departureStation={departureStation}
           arrivalStation={arrivalStation}
-          onClose={() => navigate('/train-search')}
+          onClose={() => {
+            const params = new URLSearchParams({
+              departureStation,
+              arrivalStation,
+              departureDate: schedule.departureAt.slice(0, 10),
+            })
+
+            navigate(`/train-search?${params.toString()}`)
+          }}
         />
 
         <CarSelectionTrigger
