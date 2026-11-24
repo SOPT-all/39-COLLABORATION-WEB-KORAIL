@@ -3,8 +3,14 @@ import { useState } from 'react'
 import SwapIcon from '@/shared/assets/icon-swap.svg?react'
 import Button from '@/shared/components/button'
 
+export interface HomeTrainSearchParams {
+  departureStation: string
+  arrivalStation: string
+  departureDate: string
+}
+
 interface TrainSearchCardProps {
-  onSearch: () => void
+  onSearch: (params: HomeTrainSearchParams) => void
 }
 
 const TrainSearchCard = ({ onSearch }: TrainSearchCardProps) => {
@@ -13,11 +19,30 @@ const TrainSearchCard = ({ onSearch }: TrainSearchCardProps) => {
     arrival: '부산',
   })
 
+  const [departureDate] = useState(() => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+  })
+
+  const [, month, day] = departureDate.split('-')
+
   const handleStationSwap = () => {
     setStations(({ departure, arrival }) => ({
       departure: arrival,
       arrival: departure,
     }))
+  }
+
+  const handleSearch = () => {
+    onSearch({
+      departureStation: stations.departure,
+      arrivalStation: stations.arrival,
+      departureDate,
+    })
   }
 
   return (
@@ -49,7 +74,9 @@ const TrainSearchCard = ({ onSearch }: TrainSearchCardProps) => {
       <div className='grid grid-cols-2 gap-[13px]'>
         <div className='flex min-w-0 flex-col gap-1 rounded-8 bg-slate-50 p-2'>
           <span className='text-label-12-r text-gray-600'>출발일</span>
-          <span className='text-body-14-m break-keep text-gray-900'>10월28일 13시 이후</span>
+          <span className='text-body-14-m break-keep text-gray-900'>
+            {Number(month)}월 {Number(day)}일
+          </span>
         </div>
 
         <div className='flex min-w-0 flex-col gap-1 rounded-8 bg-slate-50 p-2'>
@@ -58,7 +85,12 @@ const TrainSearchCard = ({ onSearch }: TrainSearchCardProps) => {
         </div>
       </div>
 
-      <Button variant='primary' width={311} className='max-w-full self-center' onClick={onSearch}>
+      <Button
+        variant='primary'
+        width={311}
+        className='max-w-full self-center'
+        onClick={handleSearch}
+      >
         열차조회하기
       </Button>
     </section>

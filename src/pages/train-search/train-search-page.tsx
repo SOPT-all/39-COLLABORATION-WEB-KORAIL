@@ -1,7 +1,9 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router'
+import { useRef, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
+import { useNavigate, useSearchParams } from 'react-router'
 
+import { createReservation } from '@/pages/seat-selection/api/create-reservation'
 import { getScheduleDetail } from '@/pages/train-search/api/get-schedule-detail'
 import { getSchedules } from '@/pages/train-search/api/get-schedules'
 import NextDaySearchButton from '@/pages/train-search/components/next-day-search-button'
@@ -11,7 +13,7 @@ import TrainSearchForm from '@/pages/train-search/components/train-search-form'
 import TrainTypeFilter, {
   type TrainType as TrainFilterType,
 } from '@/pages/train-search/components/train-type-filter'
-import type { TrainDetailInfo, TrainFareOption } from '@/pages/train-search/types/train-detail'
+import type { TrainDetailInfo } from '@/pages/train-search/types/train-detail'
 import type { TrainResult } from '@/pages/train-search/types/train-result'
 import type {
   ScheduleDetailResponse,
@@ -22,6 +24,8 @@ import type {
   TrainSearchCondition,
   TripType,
 } from '@/pages/train-search/types/train-search-condition'
+
+const passengerCount = 1
 
 const formatRequestDate = (date: Date) => {
   const year = date.getFullYear()
@@ -46,20 +50,33 @@ const addDays = (date: Date, days: number) => {
   return nextDate
 }
 
-const initialDepartureDate = new Date()
+const getInitialSearch = (searchParams: URLSearchParams) => {
+  const requestedDate = searchParams.get('departureDate')
+  const parsedDate =
+    requestedDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate)
+      ? new Date(`${requestedDate}T00:00:00`)
+      : null
 
-const initialSearchCondition: TrainSearchCondition = {
-  tripType: 'round-trip',
-  dateLabel: formatDateLabel(initialDepartureDate),
-  timeLabel: `${String(initialDepartureDate.getHours()).padStart(2, '0')}:${String(
-    initialDepartureDate.getMinutes(),
-  ).padStart(2, '0')} 이후`,
-  departureStation: '서울',
-  arrivalStation: '부산',
-  seatGradeLabel: '전체',
-  passengerLabel: '어른 1명',
-  isSeoulAreaIncluded: false,
-  isAdjacentStationIncluded: false,
+  const departureDate =
+    parsedDate &&
+    !Number.isNaN(parsedDate.getTime()) &&
+    formatRequestDate(parsedDate) === requestedDate
+      ? parsedDate
+      : new Date()
+
+  const condition: TrainSearchCondition = {
+    tripType: 'one-way',
+    dateLabel: formatDateLabel(departureDate),
+    timeLabel: '00:00 이후',
+    departureStation: searchParams.get('departureStation') || '서울',
+    arrivalStation: searchParams.get('arrivalStation') || '부산',
+    seatGradeLabel: '전체',
+    passengerLabel: `어른 ${passengerCount}명`,
+    isSeoulAreaIncluded: false,
+    isAdjacentStationIncluded: false,
+  }
+
+  return { departureDate, condition }
 }
 
 const scheduleTrainTypeByFilter: Partial<Record<TrainFilterType, ScheduleTrainType>> = {
@@ -88,15 +105,8 @@ const formatDuration = (durationMinutes: number) => {
   return `${hours}시간 ${minutes}분`
 }
 
-const getFare = (schedule: ScheduleResponse, seatClass: 'STANDARD' | 'FIRST') => {
-  return schedule.fares.find((fare) => fare.seatClass === seatClass)?.totalPrice
-}
-
-const getPassengerCount = (passengerLabel: string) => {
-  const passengerCount = Number(passengerLabel.match(/\d+/)?.[0])
-
-  return Number.isInteger(passengerCount) && passengerCount > 0 ? passengerCount : 1
-}
+const getFare = (schedule: ScheduleResponse, seatClass: 'STANDARD' | 'FIRST') =>
+  schedule.fares.find((fare) => fare.seatClass === seatClass)?.totalPrice
 
 const getTrainResult = (
   schedule: ScheduleResponse,
@@ -149,25 +159,34 @@ const getScheduleTrainDetail = (
   stopStation: schedule.remark ?? undefined,
 })
 
-const getStandardFare = (train: TrainResult): TrainFareOption => ({
-  seatGrade: 'standard',
-  label: '일반실',
-  price: train.standardFare,
-})
+const createSearchParams = (condition: TrainSearchCondition, date: Date) =>
+  new URLSearchParams({
+    departureStation: condition.departureStation,
+    arrivalStation: condition.arrivalStation,
+    departureDate: formatRequestDate(date),
+  })
 
 const TrainSearchPage = () => {
   const navigate = useNavigate()
-  const [searchCondition, setSearchCondition] =
-    useState<TrainSearchCondition>(initialSearchCondition)
-  const [submittedCondition, setSubmittedCondition] =
-    useState<TrainSearchCondition>(initialSearchCondition)
-  const [departureDate, setDepartureDate] = useState(initialDepartureDate)
-  const [submittedDepartureDate, setSubmittedDepartureDate] = useState(initialDepartureDate)
+  const queryClient = useQueryClient()
+  const isReservingRef = useRef(false)
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [initialSearch] = useState(() => getInitialSearch(searchParams))
+
+  const [searchCondition, setSearchCondition] = useState<TrainSearchCondition>(
+    initialSearch.condition,
+  )
+  const [submittedCondition, setSubmittedCondition] = useState<TrainSearchCondition>(
+    initialSearch.condition,
+  )
+  const [departureDate, setDepartureDate] = useState(initialSearch.departureDate)
   const [selectedTrainType, setSelectedTrainType] = useState<TrainFilterType>('all')
   const [selectedTrain, setSelectedTrain] = useState<TrainResult | null>(null)
+  const [reservationError, setReservationError] = useState('')
 
   const scheduleTrainType = scheduleTrainTypeByFilter[selectedTrainType]
-  const passengerCount = getPassengerCount(submittedCondition.passengerLabel)
+
   const {
     data: scheduleList,
     isPending,
@@ -177,14 +196,14 @@ const TrainSearchPage = () => {
       'schedules',
       submittedCondition.departureStation,
       submittedCondition.arrivalStation,
-      formatRequestDate(submittedDepartureDate),
+      formatRequestDate(departureDate),
       scheduleTrainType,
     ],
     queryFn: () =>
       getSchedules({
         departureStation: submittedCondition.departureStation,
         arrivalStation: submittedCondition.arrivalStation,
-        departureDate: formatRequestDate(submittedDepartureDate),
+        departureDate: formatRequestDate(departureDate),
         passengerCount,
         trainTypes: scheduleTrainType ? [scheduleTrainType] : undefined,
       }),
@@ -200,6 +219,7 @@ const TrainSearchPage = () => {
     ) ?? []
 
   const selectedScheduleId = selectedTrain ? Number(selectedTrain.id) : null
+
   const {
     data: scheduleDetail,
     isPending: isDetailPending,
@@ -216,25 +236,59 @@ const TrainSearchPage = () => {
     enabled: selectedScheduleId !== null,
   })
 
+  const reservationMutation = useMutation({
+    mutationFn: createReservation,
+    retry: false,
+    onSuccess: (_, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: ['schedules'],
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['coaches', variables.scheduleId],
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['seats', variables.scheduleId],
+      })
+    },
+    onError: (error) => {
+      if (isAxiosError<{ message?: string }>(error)) {
+        if (error.response?.status === 409) {
+          setReservationError(
+            '예약 가능한 좌석이 부족하거나 좌석 상태가 변경됐습니다. 다시 확인해 주세요.',
+          )
+
+          void queryClient.invalidateQueries({
+            queryKey: ['schedules'],
+          })
+          return
+        }
+
+        setReservationError(
+          error.response?.data?.message ||
+            '예약 요청을 완료하지 못했습니다. 네트워크와 예약 결과를 확인해 주세요.',
+        )
+        return
+      }
+
+      setReservationError('예약 생성 응답을 확인하지 못했습니다. 예약 결과를 확인해 주세요.')
+    },
+    onSettled: () => {
+      isReservingRef.current = false
+    },
+  })
+
   const handleSearchSubmit = () => {
+    setSearchParams(createSearchParams(searchCondition, departureDate), {
+      replace: true,
+    })
     setSubmittedCondition(searchCondition)
-    setSubmittedDepartureDate(departureDate)
     setSelectedTrainType('all')
     setSelectedTrain(null)
+    setReservationError('')
   }
 
   const handleTripTypeChange = (tripType: TripType) => {
     setSearchCondition((condition) => ({ ...condition, tripType }))
-    setSelectedTrain(null)
-  }
-
-  const handleStationSwap = () => {
-    setSearchCondition((condition) => ({
-      ...condition,
-      departureStation: condition.arrivalStation,
-      arrivalStation: condition.departureStation,
-    }))
-    setSelectedTrain(null)
   }
 
   const handleSeoulAreaChange = (checked: boolean) => {
@@ -251,35 +305,73 @@ const TrainSearchPage = () => {
     }))
   }
 
+  const handleStationSwap = () => {
+    setSearchCondition((condition) => ({
+      ...condition,
+      departureStation: condition.arrivalStation,
+      arrivalStation: condition.departureStation,
+    }))
+    setSelectedTrain(null)
+  }
+
   const handleTrainTypeChange = (trainType: TrainFilterType) => {
     setSelectedTrainType(trainType)
     setSelectedTrain(null)
   }
 
   const handleNextDaySearch = () => {
-    const nextDepartureDate = addDays(submittedDepartureDate, 1)
+    const nextDepartureDate = addDays(departureDate, 1)
     const nextSearchCondition = {
       ...submittedCondition,
       dateLabel: formatDateLabel(nextDepartureDate),
       timeLabel: '00:00 이후',
     }
 
+    setSearchParams(createSearchParams(nextSearchCondition, nextDepartureDate), {
+      replace: true,
+    })
     setDepartureDate(nextDepartureDate)
-    setSubmittedDepartureDate(nextDepartureDate)
     setSearchCondition(nextSearchCondition)
     setSubmittedCondition(nextSearchCondition)
     setSelectedTrainType('all')
     setSelectedTrain(null)
+    setReservationError('')
   }
 
   const handleSeatSelect = () => {
-    if (!selectedTrain) return
+    if (!selectedTrain || isReservingRef.current) return
 
-    navigate(`/seat-selection/${selectedTrain.id}`)
+    const params = createSearchParams(submittedCondition, departureDate)
+
+    navigate(`/seat-selection/${selectedTrain.id}?${params.toString()}`)
   }
 
   const handleReservation = () => {
-    navigate('/reservation-confirmation')
+    if (
+      !selectedTrain ||
+      !scheduleDetail ||
+      isDetailPending ||
+      isDetailError ||
+      isReservingRef.current
+    ) {
+      return
+    }
+
+    isReservingRef.current = true
+    setReservationError('')
+
+    reservationMutation.mutate(
+      {
+        scheduleId: scheduleDetail.scheduleId,
+        seatClass: 'STANDARD',
+        passengerCount,
+      },
+      {
+        onSuccess: ({ reservationId }) => {
+          navigate(`/reservation-confirmation?reservationId=${reservationId}`)
+        },
+      },
+    )
   }
 
   const nextDateLabel = formatDateLabel(addDays(departureDate, 1))
@@ -317,7 +409,13 @@ const TrainSearchPage = () => {
           )}
 
           {!isPending && !isError && (
-            <TrainResultList trains={trainResults} onTrainSelect={setSelectedTrain} />
+            <TrainResultList
+              trains={trainResults}
+              onTrainSelect={(train) => {
+                setReservationError('')
+                setSelectedTrain(train)
+              }}
+            />
           )}
         </div>
 
@@ -338,19 +436,24 @@ const TrainSearchPage = () => {
                 )
               : getTrainDetail(selectedTrain, submittedCondition.dateLabel)
           }
-          fareOption={
-            scheduleDetail
-              ? {
-                  seatGrade: 'standard',
-                  label: '일반실',
-                  price: getFare(scheduleDetail, 'STANDARD') ?? selectedTrain.standardFare,
-                }
-              : getStandardFare(selectedTrain)
-          }
-          passengerSummary={`어른 ${scheduleDetail?.passengerCount ?? passengerCount}명 기준`}
+          fareOption={{
+            seatGrade: 'standard',
+            label: '일반실',
+            price: scheduleDetail
+              ? (getFare(scheduleDetail, 'STANDARD') ?? selectedTrain.standardFare)
+              : selectedTrain.standardFare,
+          }}
+          passengerSummary={`어른 ${passengerCount}명 기준`}
           isPending={isDetailPending}
           isError={isDetailError}
-          onClose={() => setSelectedTrain(null)}
+          isReservationPending={reservationMutation.isPending}
+          reservationError={reservationError}
+          onClose={() => {
+            if (isReservingRef.current) return
+
+            setReservationError('')
+            setSelectedTrain(null)
+          }}
           onReservationClick={handleReservation}
           onSeatSelectClick={handleSeatSelect}
         />

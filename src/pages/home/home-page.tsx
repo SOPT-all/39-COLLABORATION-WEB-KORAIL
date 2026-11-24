@@ -1,15 +1,23 @@
 import { useNavigate } from 'react-router'
 
 import HomeExternalLinks from '@/pages/home/components/home-external-links'
-import TrainSearchCard from '@/pages/home/components/train-search-card'
+import TrainSearchCard, {
+  type HomeTrainSearchParams,
+} from '@/pages/home/components/train-search-card'
 import HomeShortcuts from '@/pages/home/components/home-shortcuts'
 import HomeFooter from '@/pages/home/components/home-footer'
 
 const HomePage = () => {
   const navigate = useNavigate()
 
-  const handleTrainSearch = () => {
-    navigate('/train-search')
+  const handleTrainSearch = (params: HomeTrainSearchParams) => {
+    const searchParams = new URLSearchParams({
+      departureStation: params.departureStation,
+      arrivalStation: params.arrivalStation,
+      departureDate: params.departureDate,
+    })
+
+    navigate(`/train-search?${searchParams.toString()}`)
   }
 
   return (

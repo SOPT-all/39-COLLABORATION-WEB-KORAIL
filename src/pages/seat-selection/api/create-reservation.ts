@@ -5,7 +5,7 @@ export interface CreateReservationRequest {
   scheduleId: number
   seatClass: 'STANDARD'
   passengerCount: 1
-  seatIds: [number]
+  seatIds?: [number]
 }
 
 export interface CreateReservationResponse {

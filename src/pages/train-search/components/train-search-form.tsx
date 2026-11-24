@@ -12,7 +12,7 @@ import Button from '@/shared/components/button'
 interface TrainSearchFormProps {
   condition: TrainSearchCondition
   onSubmit: () => void
-  onTripTypeChange: (tripType: TripType) => void
+  onTripTypeChange?: (tripType: TripType) => void
   onStationSwap?: () => void
   onSeoulAreaChange?: (checked: boolean) => void
   onAdjacentStationChange?: (checked: boolean) => void
@@ -29,27 +29,31 @@ interface StationOptionProps {
   onChange?: (checked: boolean) => void
 }
 
-const ConditionField = ({ label, value }: ConditionFieldProps) => {
-  return (
-    <div className='flex h-14 min-w-0 flex-1 items-center rounded-8 bg-slate-50 p-2 text-left'>
-      <span className='flex min-w-0 flex-1 flex-col items-start gap-1 overflow-hidden'>
-        <span className='w-full text-label-12-r text-gray-600'>{label}</span>
-        <strong className='w-full truncate text-body-14-m text-gray-900'>{value}</strong>
-      </span>
-    </div>
-  )
-}
+const ConditionField = ({ label, value }: ConditionFieldProps) => (
+  <div className='flex h-14 min-w-0 flex-1 items-center rounded-8 bg-slate-50 p-2 text-left'>
+    <span className='flex min-w-0 flex-1 flex-col items-start gap-1 overflow-hidden'>
+      <span className='w-full text-label-12-r text-gray-600'>{label}</span>
+      <strong className='w-full truncate text-body-14-m text-gray-900'>{value}</strong>
+    </span>
+  </div>
+)
 
 const StationOption = ({ label, isChecked, onChange }: StationOptionProps) => {
+  const isDisabled = !onChange
+
   return (
-    <label className='flex h-5 cursor-pointer items-center gap-1'>
+    <label
+      className={`flex h-5 items-center gap-1 ${isDisabled ? 'cursor-default' : 'cursor-pointer'}`}
+    >
       <span className='relative flex size-5 shrink-0 items-center justify-center'>
         <input
           checked={isChecked}
+          disabled={isDisabled}
           className='peer sr-only'
           onChange={(event) => onChange?.(event.target.checked)}
           type='checkbox'
         />
+
         <span
           aria-hidden='true'
           className={`relative size-3.5 rounded-[2px] border-[1.154px] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-500 ${
@@ -60,7 +64,13 @@ const StationOption = ({ label, isChecked, onChange }: StationOptionProps) => {
         />
       </span>
 
-      <span className='text-caption-10-r whitespace-nowrap text-gray-700'>{label}</span>
+      <span
+        className={`text-caption-10-r whitespace-nowrap ${
+          isDisabled ? 'text-gray-400' : 'text-gray-700'
+        }`}
+      >
+        {label}
+      </span>
     </label>
   )
 }
@@ -93,13 +103,14 @@ const TrainSearchForm = ({
   return (
     <form
       aria-label='열차 조회 조건'
-      className='flex w-full max-w-[343px] flex-col gap-4 rounded-12 bg-gray-0 p-4 shadow-[0_0_2px_rgba(0,0,0,0.08)]'
+      className='flex w-full max-w-[343px] flex-col gap-4 rounded-12 bg-gray-0 p-4 shadow-[0_0_2px_0_rgba(0,0,0,0.08)]'
       onSubmit={handleSubmit}
     >
       <TripTypeTabs selectedTripType={tripType} onTripTypeChange={onTripTypeChange} />
 
       <div className='flex w-full flex-col gap-2'>
         <TravelDatePicker dateLabel={dateLabel} timeLabel={timeLabel} />
+
         <StationSelector
           departureStation={departureStation}
           arrivalStation={arrivalStation}
