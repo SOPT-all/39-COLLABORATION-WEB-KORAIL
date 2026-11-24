@@ -1,6 +1,7 @@
 @theme {
   --font-noto-sans-kr: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
   --font-korail-round: 'Korail Round Gothic', 'Noto Sans KR', sans-serif;
+  --font-arial: Arial, 'Noto Sans KR', sans-serif;
 
   --text-title-22-b: 22px;
   --text-title-22-b--line-height: 30px;
@@ -41,6 +42,16 @@
   --text-body-14-r--line-height: 20px;
   --text-body-14-r--letter-spacing: -0.05em;
   --text-body-14-r--font-weight: 400;
+
+  --text-body-13-m: 13px;
+  --text-body-13-m--line-height: 18px;
+  --text-body-13-m--letter-spacing: -0.05em;
+  --text-body-13-m--font-weight: 500;
+
+  --text-body-13-r: 13px;
+  --text-body-13-r--line-height: 18px;
+  --text-body-13-r--letter-spacing: -0.05em;
+  --text-body-13-r--font-weight: 400;
 
   --text-label-12-b: 12px;
   --text-label-12-b--line-height: 16px;
