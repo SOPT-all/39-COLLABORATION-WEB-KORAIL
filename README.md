@@ -1,6 +1,7 @@
 # 39-COLLABORATION-WEB-KORAIL
 
-PLAY SOPT 39기 합동세미나 모바일 웹 1조 코레일 🚄
+PLAY SOPT 39기 합동세미나 모바일 웹 1조 코레일 🚄 <br />
+[**열차 조회부터 좌석 선택, 예약 생성, 결제 대기 정보 확인**까지 연결한 코레일 모바일 웹 리디자인 프로젝트]
 <br />
 
 ## 🆒: 어벤져스 팀원 소개
@@ -44,27 +45,40 @@ PLAY SOPT 39기 합동세미나 모바일 웹 1조 코레일 🚄
 
 <br />
 
+## 🤘🏽: 역할 분담
+
+|   어벤져스s    | 담당 화면·기능                                                                                                                                      | 공통 작업                                                                          |
+| :------------: | --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **🛁: 황유림** | **좌석 선택·예매 흐름 통합**<br>좌석 그리드·범례·호차 선택 시트·안내 모달<br>좌석 배치 조회·예약 생성·자동 배정<br>검색 조건 전달 및 결제 대기 연결 | 프로젝트 초기 구성<br>공통 바텀시트·모바일 레이아웃·UI 가이드<br>CI·PR 자동화·배포 |
+| **🚿: 최효비** | **열차 조회·상세**<br>조회 조건 폼·열차 종류 필터<br>결과 카드·목록·상세 바텀시트<br>목록·상세·운임 API 연동                                        | 공통 버튼·디자인 토큰·폰트<br>ESLint·Prettier·절대경로 설정                        |
+| **🪠: 이보성** | **홈 화면**<br>조회 카드·내 승차권·이용 안내·푸터<br>호차 목록 조회 API 함수                                                                        | 라우터<br>공통 헤더·레이아웃                                                       |
+| **🧼: 오세영** | **결제 대기**<br>예약 카드·안내·버튼<br>예약 상세 API 연동·빈 결과 안내                                                                             | 공통 운행정보 컴포넌트<br>Axios·TanStack Query 기반 설정<br>SVGR                   |
+
+화면별 컴포넌트와 API 함수를 공유하고, <br />
+통합 단계에서 실제 검색 조건과 예약 ID를 연결했습니다.
+
+<br />
+
 ## 💅🏽: Tech Stack
 
-| 카테고리                | 기술 스택                |
-| ----------------------- | ------------------------ |
-| UI Library              | React                    |
-| Language                | TypeScript               |
-| Build Tool              | Vite                     |
-| Runtime                 | Node.js                  |
-| Package Manager         | pnpm                     |
-| Styling                 | Tailwind CSS             |
-| Routing                 | React Router             |
-| HTTP Client             | Axios                    |
-| Server State Management | TanStack Query           |
-| Local State             | React useState           |
-| SVG                     | SVGR                     |
-| Version Control         | Git · GitHub             |
-| CI                      | GitHub Actions           |
-| Deployment              | Vercel                   |
-| Git Hooks               | Husky                    |
-| Formatting              | ESLint · Prettier        |
-| Cooperation             | Notion · Discord · Figma |
+| 카테고리        | 기술                              |
+| --------------- | --------------------------------- |
+| UI Library      | React                             |
+| Language        | TypeScript                        |
+| Build Tool      | Vite                              |
+| Runtime         | Node.js                           |
+| Package Manager | pnpm                              |
+| Styling         | Tailwind CSS · 디자인 토큰        |
+| Routing         | React Router                      |
+| HTTP Client     | Axios                             |
+| Server State    | TanStack Query                    |
+| Local State     | React useState · useRef           |
+| SVG             | SVGR                              |
+| CI              | GitHub Actions                    |
+| Deployment      | Vercel                            |
+| Git Hooks       | Husky · lint-staged               |
+| Formatting      | ESLint · Prettier                 |
+| Collaboration   | GitHub · Notion · Discord · Figma |
 
 <br />
 
@@ -72,119 +86,105 @@ PLAY SOPT 39기 합동세미나 모바일 웹 1조 코레일 🚄
 
 ### Main Flow
 
-**홈 → 열차 조회 → 좌석 선택 → 결제 대기 예약 목록**
+홈 → 열차 조회 → 좌석 선택 → 결제 대기 예약 목록
 
 <br />
 
 ## 📤: Directory Structure
 
-### 현재 구조
-
-초기 세팅 PR에 포함된 `src` 구조입니다.
-
-```text
-src
-├── app
-│   ├── App.tsx
-│   └── main.tsx
-└── shared
-    └── styles
-        └── global.css
-```
-
-### 구현 예정 구조
-
-화면과 공통 기능을 구현하면서 필요한 폴더와 파일을 추가합니다. `vite-env.d.ts`는 환경변수 타입을 별도로 선언할 때 추가합니다.
+### [최종 구조]
 
 ```text
 src
 ├── app
 │   ├── layout
-│   ├── router
-│   │   └── router.tsx
 │   ├── providers
-│   │   ├── query-client.ts
-│   │   └── query-provider.tsx
+│   ├── router
 │   ├── App.tsx
 │   └── main.tsx
-│
 ├── pages
 │   ├── home
+│   │   ├── assets
 │   │   ├── components
 │   │   └── home-page.tsx
-│   │
 │   ├── train-search
 │   │   ├── api
+│   │   ├── assets
 │   │   ├── components
-│   │   ├── hooks
 │   │   ├── types
 │   │   └── train-search-page.tsx
-│   │
 │   ├── seat-selection
 │   │   ├── api
-│   │   │   └── create-reservation.ts
+│   │   ├── assets
 │   │   ├── components
-│   │   ├── hooks
-│   │   ├── types
 │   │   └── seat-selection-page.tsx
-│   │
-│   └── reservation-confirmation
-│       ├── api
-│       │   └── get-pending-reservations.ts
-│       ├── components
-│       ├── hooks
-│       ├── types
-│       └── reservation-confirmation-page.tsx
-│
+│   ├── reservation-confirmation
+│   │   ├── api
+│   │   ├── components
+│   │   └── reservation-confirmation-page.tsx
+│   └── ui
+│       ├── examples
+│       ├── example-card.tsx
+│       └── style-guide.tsx
 ├── shared
 │   ├── api
-│   │   ├── client.ts
-│   │   └── reservation-query-keys.ts
-│   ├── constants
-│   ├── hooks
-│   ├── icons
-│   ├── images
-│   ├── styles
-│   │   └── global.css
-│   ├── types
+│   ├── assets
 │   ├── components
-│   └── utils
-│
+│   └── styles
+│       └── tokens
 └── vite-env.d.ts
 ```
+
+### [코드 배치 기준]
 
 | 폴더         | 역할                                      |
 | ------------ | ----------------------------------------- |
 | `app`        | 앱 진입점·라우터·Provider·공통 레이아웃   |
-| `pages`      | 페이지별 구현                             |
-| `api`        | 서버 요청 함수                            |
-| `components` | UI 컴포넌트                               |
+| `pages`      | 페이지별 UI·상태·API 연동                 |
+| `api`        | 서버 요청 함수와 관련 타입                |
+| `components` | 화면 또는 공통 UI                         |
 | `hooks`      | React 상태·요청 흐름을 관리하는 커스텀 훅 |
 | `types`      | 여러 파일에서 사용하는 데이터 타입        |
-| `shared`     | 여러 페이지가 공유하는 코드               |
-| `constants`  | 고정 조회 조건 등 공통 상수               |
-| `styles`     | 전역 스타일·디자인 토큰                   |
-| `utils`      | 날짜·금액 변환 등 일반 함수               |
+| `shared`     | 여러 페이지에서 재사용하는 코드·에셋      |
+| `styles`     | 전역 스타일과 디자인 토큰                 |
 
-### API와 Query 키 배치 기준
+<br />
+: API 요청 함수는 각 페이지의 `api`에, Query Key와 요청 상태는 사용하는 페이지 컴포넌트에 정의합니다.
 
-- 열차 목록·상세 요청과 Query 키는 `pages/train-search/api`에서 관리합니다.
-- 호차 목록·좌석 조회 요청과 해당 Query 키, 예약 생성 요청(POST)은 `pages/seat-selection/api`에서 관리합니다.
-- 결제 대기 예약 목록 조회 요청(GET)은 `pages/reservation-confirmation/api`에서 관리합니다.
-- 공통 Axios 클라이언트는 `shared/api/client.ts`에서 관리합니다.
-- 예약 목록 조회와 예약 생성 성공 후 목록 갱신에는 `shared/api/reservation-query-keys.ts`에 정의한 같은 Query 키를 사용합니다.
+공통 Axios 클라이언트와 응답 래퍼 타입은 `shared/api`에서 관리합니다.
+
+<br />
+
+## 🔌 API 연동
+
+| 기능           | 요청                                                         |
+| -------------- | ------------------------------------------------------------ |
+| 열차 목록      | `GET /api/v1/schedules`                                      |
+| 열차 상세·운임 | `GET /api/v1/schedules/{scheduleId}`                         |
+| 호차 목록      | `GET /api/v1/schedules/{scheduleId}/coaches`                 |
+| 좌석 배치      | `GET /api/v1/schedules/{scheduleId}/coaches/{coachId}/seats` |
+| 예약 생성      | `POST /api/v1/reservations`                                  |
+| 예약 상세      | `GET /api/v1/reservations/{reservationId}`                   |
+
+- 조회 데이터는 TanStack Query로 관리합니다.
+- 예약 생성은 Mutation으로 처리합니다.
+- 검색 구간·날짜는 URL의 쿼리 파라미터로 전달합니다.
+- 예약 생성·상세 조회에는 테스트 회원 헤더 `Member-Id: 1`을 사용합니다.
+- 결제 대기는 예약 목록 API가 아닌, 전달받은 예약 ID의 단건 상세 조회로 구성합니다.
+- 예약·좌석 데이터의 최신성이 필요한 곳에서는 개별 쿼리 옵션과 캐시 무효화를 적용합니다.
 
 <br />
 
 ## 🤙🏽: Convention
 
 <details>
-<summary>📂폴더·파일 이름</summary>
+<summary>📂폴더·파일 </summary>
 
 <br />
 
-- 폴더·파일 이름은 소문자로 시작하는 `kebab-case`를 사용합니다.
+- 폴더·파일 이름은 `kebab-case`를 사용합니다.
 - 앱 진입 컴포넌트 `App.tsx`는 예외로 둡니다.
+- 컴포넌트 이름은 `PascalCase`를 사용합니다.
 - 여러 항목을 모으는 폴더는 복수형을 사용합니다.
 - 페이지·기능 이름까지 일괄적으로 복수형으로 만들지 않습니다.
 
@@ -201,7 +201,7 @@ src
 - 자식이 없으면 Self-closing 태그를 사용합니다.
 - 목적에 맞는 시맨틱 태그를 사용합니다.
 - 불필요한 래퍼 없이 여러 요소를 묶을 때 Fragment를 사용합니다.
-- 클릭 가능한 좌석은 `div` 대신 `button`을 기본으로 사용합니다.
+- 클릭 가능한 좌석은 `button`으로 구현합니다.
 
 </details>
 
@@ -258,7 +258,7 @@ API 요청·응답 타입은 서버 명세를 기준으로 작성합니다.
 - 색상·폰트·간격 기준은 `shared/styles`에서 관리합니다.
 - 반복되는 UI는 공통 컴포넌트로 분리합니다.
 - SVG는 필요한 경우 SVGR로 컴포넌트화합니다.
-- 단색 아이콘의 색상 제어에 `currentColor`를 사용합니다.
+- 단색 아이콘은 `currentColor`로 색상을 제어합니다.
 - 다색 로고·일러스트의 색상을 일괄 변환하지 않습니다.
 
 </details>
@@ -273,7 +273,6 @@ type: 작업 내용
 
 - 기능 단위로 작게 커밋합니다.
 - 변경한 동작·대상을 구체적으로 작성합니다.
-- 형식에 필요한 콜론은 유지합니다.
 - `fix: 리뷰 반영`처럼 변경 내용을 알 수 없는 메시지는 지양합니다.
 
 ```text
@@ -301,13 +300,12 @@ docs: 프로젝트 실행 방법 추가
 
 ### PR 제목
 
-타입의 첫 글자를 대문자로 작성합니다.
+타입의 첫 글자를 대문자로 작성하고, 작업 범위를 표시합니다.
 
 ```text
-Feat: 열차 목록 조회 연동
-Fix: 좌석 선택 상태 수정
-Init: 라우터 설정
-Init(project): PR 및 이슈 템플릿 설정
+Feat(api): 열차 목록 조회 API 연동
+Fix(ui): 예약 카드 로고 표시 수정
+Chore(deploy): 코레일 모바일 웹 배포
 ```
 
 ### PR 작성·리뷰
@@ -317,7 +315,7 @@ Init(project): PR 및 이슈 템플릿 설정
 - UI 변경은 스크린샷 또는 영상을 첨부합니다.
 - 최소 2명의 승인과 필수 검사 통과 후 병합합니다.
 - 리뷰 없이 신뢰머지 ❌❌
-- 리뷰는 구체적으로 작성합니다.
+- 리뷰는 확인한 동작과 개선점을 구체적으로 작성합니다.
 
 <br />
 
@@ -325,23 +323,14 @@ Init(project): PR 및 이슈 템플릿 설정
 
 ### 브랜치 운영
 
-| 브랜치                          | 용도             |
-| ------------------------------- | ---------------- |
-| `main`                          | 검증된 배포 기준 |
-| `develop`                       | 기능 통합        |
-| `init/기능명/#issue-number`     | 초기 세팅        |
-| `feat/기능명/#issue-number`     | 기능 개발        |
-| `fix/기능명/#issue-number`      | 오류 수정        |
-| `refactor/기능명/#issue-number` | 리팩토링         |
-
-기능명은 `kebab-case`를 사용합니다.
-
-```text
-init/router/#3
-feat/train-search/#12
-fix/seat-selection/#24
-refactor/train-card/#30
-```
+| 브랜치                          | 용도           |
+| ------------------------------- | -------------- |
+| `main`                          | 운영 배포 기준 |
+| `develop`                       | 기능 통합      |
+| `init/기능명/#issue-number`     | 초기 설정      |
+| `feat/기능명/#issue-number`     | 기능 개발      |
+| `fix/기능명/#issue-number`      | 오류 수정      |
+| `refactor/기능명/#issue-number` | 리팩토링       |
 
 ### 어벤져스's 개발 흐름
 
@@ -349,25 +338,58 @@ refactor/train-card/#30
 2. 최신 `develop`에서 작업 브랜치를 생성합니다.
 3. 작업 후 로컬 검사를 실행합니다.
 4. `develop`을 대상으로 PR을 생성합니다.
-5. 2명 이상 승인 및 필수 검사 통과 후 병합합니다.
-6. 검증된 내용을 `main`에 반영합니다.
+5. 코드리뷰·필수 검사·프리뷰 확인 후 병합합니다.
+6. 배포 시 `develop → main` PR로 반영합니다.
+7. Production 배포 후 운영 환경에서 핵심 흐름을 확인합니다.
+
+<br />
+
+## 🔮: CI/CD
+
+### PR 검사
+
+`develop`·`main` 대상 PR에서 다음 항목을 검사합니다.
+
+- ESLint
+- Prettier
+- TypeScript 검사 및 Vite 빌드
+
+### Preview
+
+- `develop` 대상 PR에서 실행합니다.
+- 프리뷰 배포 후 PR 댓글에 배포 주소와 UI 가이드 링크를 표시합니다.
+
+### Production
+
+- `main`에 반영되면 운영 배포를 실행합니다.
+- 배포 성공 후 운영 주소에서 조회·예약·결제 대기 흐름을 확인합니다.
+
+### 환경변수
+
+Vercel의 Preview·Production 환경에 `VITE_API_BASE_URL`을 등록합니다.
 
 <br />
 
 ## UI 가이드(FOR 어벤져스)
 
-- 로컬: `pnpm dev`를 실행하고 `/ui`를 엽니다.
-- PR 프리뷰: GitHub의 배포 완료 댓글에서 **UI 가이드**를 선택합니다.
-- 공통 예시 추가: `src/pages/ui/style-guide.tsx`의 **공통 컴포넌트** 섹션을 수정합니다.
-- 페이지별 예시 추가: `src/pages/ui/examples/`에서 담당 페이지 파일만 수정합니다.
-  - 홈: `home-examples.tsx`
-  - 열차 조회: `train-search-examples.tsx`
-  - 좌석 선택: `seat-selection-examples.tsx`
-  - 결제 대기: `reservation-confirmation-examples.tsx`
-- 예시 작성: 실제 컴포넌트를 가져와 예시 props를 넘깁니다.
-- 예시 분류: 예시를 추가하는 PR 작성자가 여러 화면에서 재사용하는 UI는 **공통 컴포넌트**에, 특정 화면 전용 UI는 **페이지별 컴포넌트**에 넣습니다. 코드의 폴더 경로와 관계없이 실제 사용 범위를 기준으로 분류합니다.
+공통 컴포넌트&페이지별 UI를 실제 컴포넌트·예시 props로 확인합니다.
+
+- 로컬: `pnpm dev` 실행 후 `/ui` 접속
+- PR 프리뷰: 배포 댓글의 **UI 가이드** 링크
+- 운영: 기본 설정에서는 UI 가이드 경로 제외
+- 명시적으로 활성화할 경우: `VITE_ENABLE_UI_GUIDE=true`
+
+| 구분        | 파일                                                          |
+| ----------- | ------------------------------------------------------------- |
+| 공통 가이드 | `src/pages/ui/style-guide.tsx`                                |
+| 홈          | `src/pages/ui/examples/home-examples.tsx`                     |
+| 열차 조회   | `src/pages/ui/examples/train-search-examples.tsx`             |
+| 좌석 선택   | `src/pages/ui/examples/seat-selection-examples.tsx`           |
+| 결제 대기   | `src/pages/ui/examples/reservation-confirmation-examples.tsx` |
+
+<br />
 
 ## 어벤져스's 협업 공간
 
-- [OUR Notion](https://app.notion.com/p/1Team-40ca4942abfc80a2aed2efed7e7affa9?source=copy_link)
-- [Figma](https://www.figma.com/design/YFo1CRs1h7FJ77irj1JDJf)
+[OUR Notion](https://app.notion.com/p/1Team-40ca4942abfc80a2aed2efed7e7affa9?source=copy_link) <br />
+[Figma](https://www.figma.com/design/YFo1CRs1h7FJ77irj1JDJf)
